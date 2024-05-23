@@ -1,3 +1,12 @@
+<?
+session_start();
+if (isset($_SESSION['expiretime']) && time() >= $_SESSION['expiretime']) {
+    session_unset();
+    session_destroy();
+    header("Location: GPA_login.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html>
 <head>
