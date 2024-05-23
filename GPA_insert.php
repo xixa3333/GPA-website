@@ -1,3 +1,10 @@
+<?
+session_start();
+if (!isset($_SESSION["user"]) || $_SESSION["user"] == ""){
+	header("Location: GPA_login.php");
+	exit();
+}
+?>
 <html>
 	<head>
 		<title>GPA計算網站</title>
