@@ -13,23 +13,23 @@
 	}
 	
 	$date = date("Y-m-d 23:59:59");
-		if (isset($_GET["account"]) && isset($_GET["password"])) {
-			$sql_str = "SELECT * FROM `account`";
-			$res = mysqli_query($conn, $sql_str);
-			while ($row_array = mysqli_fetch_assoc($res)){
-				foreach ($row_array as $key => $item){
-					if($key=='user')$account=$item;
-					if($key=='password')$password=$item;
-				}
-				if($_GET['account']==$account and $_GET['password']==$password)$login=1;
+	if (isset($_GET["account"]) && isset($_GET["password"])) {
+		$sql_str = "SELECT * FROM `account`";
+		$res = mysqli_query($conn, $sql_str);
+		while ($row_array = mysqli_fetch_assoc($res)){
+			foreach ($row_array as $key => $item){
+				if($key=='user')$account=$item;
+				if($key=='password')$password=$item;
 			}
-			if($login==1){
-				$_SESSION["user"] = $_GET['account'];
-				$_SESSION['expiretime'] = time() + 60*60;
-				header("Location: GPA.php");
-				exit();
-			}
+			if($_GET['account']==$account and $_GET['password']==$password)$login=1;
 		}
+		if($login==1){
+			$_SESSION["user"] = $_GET['account'];
+			$_SESSION['expiretime'] = time() + 60*60;
+			header("Location: GPA.php");
+			exit();
+		}
+	}
 	
 	mysqli_close($conn);
 ?>
@@ -46,6 +46,7 @@
 	<hr>
 	<?if(isset($_GET["account"]) && isset($_GET["password"])&&$login==0)echo "<font color='red'>帳號密碼錯誤，請重新輸入。</font>";?>
 	<form method="get">
+	<br>
 		帳號：<input type="text" name="account" required size="20" />
 		<br>
 		密碼：<input type="password" name="password" required size="20" />

@@ -30,20 +30,17 @@ include("db_connect.php");
 	}
 	?>
 	<form method="get">
+	<p>
 		帳號：<input type="text" name="account" required size="20" />
 		<br>
 		密碼：<input type="password" name="password" required size="20" />
 		<br>
-		確認密碼：<input type="password" name="confirm" required size="20" />
+		確認密碼：<input type="password" name="confirm" required size="15" />
 		<br><br>
 		<input type="submit" value="註冊"/>
 		<input type="reset" value="重新輸入"/>
 	</form>
-	<?if (!isset($_SESSION["user"]) || $_SESSION["user"] == ""){?>
-    <input type="button" onclick="javascript:location.href='GPA.php'" value="回到主畫面">
-	<?}else{ ?>
-	<input type="button" onclick="javascript:location.href='GPA_login'" value="回到主畫面">
-	<?}?>
+	<input type="button" onclick="javascript:location.href='GPA_login.php'" value="回到主畫面">
 	</center>
 </body>
 </html>

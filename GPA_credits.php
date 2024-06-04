@@ -17,12 +17,30 @@
 		$GPA_total2=0;
 		$score_total2=0;
 		$Original_credits_total=0;
+		$credit_total2=0;
 ?>
 <!DOCTYPE html>
 <html>
 <head>
     <title>GPA計算網站</title>
     <meta charset="utf-8">
+	<style>
+		.container {
+            display: flex;
+			justify-content: center;
+        }
+		.item {
+            background-color: lightblue;
+            text-align: center;
+            padding: 9px;
+        }
+		.item2 {
+            background-color: rgb(255,255,150);
+            text-align: center;
+            width: 200px;
+			padding: 5px;
+        }
+	</style>
 </head>
 <body>
     <br>
@@ -71,6 +89,7 @@
 				$GPA_total2+=($Original_credits*$GPA_total);
 				$score_total2+=($Original_credits*$score_total);
 				$Original_credits_total+=$Original_credits;
+				$credit_total2+=$credit_total;
 			}
 			
 			$GPA_total2 /= $Original_credits_total;
@@ -79,21 +98,27 @@
 			$score_total2 = number_format($score_total2, 2);
 	
 	?>
-	<p align="center">專業必修：<?php echo $Required_majors ?>/53</p>
-	<p align="center">共同必修：<?php echo $common ?>/12</p>
-	<p align="center">專業選修：<?php echo $Elective_majors ?>/47</p>
-	<p align="center">通識：<?php echo $General_Education ?>/16</p>
-	
-	<p align="center">總平均成績：<?php echo $score_total2 ?></p>
-	<p align="center">總獲得學分：<?php echo $Original_credits_total ?></p>
-	<p align="center">總平均GPA：<?php echo $GPA_total2 ?></p>
-    
+<p>
+<div class="container">
+	<div class="item2">專業選修：<?php echo $Elective_majors ?>/47</div>
+	<div class="item2">通識：<?php echo $General_Education ?>/16</div>
+</div>
+<div class="container">
+	<div class="item2">專業必修：<?php echo $Required_majors ?>/53</div>
+	<div class="item2">共同必修：<?php echo $common ?>/12</div>
+</div>
+<div class="container">
+	<div class="item">總平均成績：<?php echo $score_total2 ?></div>
+	<div class="item">總獲得學分：<?php echo $credit_total2 ?></div>
+	<div class="item">總平均GPA：<?php echo $GPA_total2 ?></div>
+</div>
 	<?
 	
 	}
 	else echo "沒有資料喔<br>";
 	mysqli_close($conn);
 	?>
+	<p>
 	<input type="button" onclick="javascript:location.href='GPA.php'" value="回到主畫面">
     </center>
 </body>
