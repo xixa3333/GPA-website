@@ -1,0 +1,50 @@
+@charset "UTF-8";
+
+form{
+	line-height:40%;
+}
+input[type="submit"],input[type="button"]{
+	width:100px;
+	height:30px;
+	font-size:15px;
+	background-color: rgb(100,100,255);
+	border-radius:5px;
+	border:2px rgb(50,50,255) double;
+	color:rgb(255,255,255);
+}
+input[type="text"],input[type="password"],input[type="number"],select{
+	width:200px;
+	height:30px;
+	border-radius:5px;
+	background-color: rgb(240,240,240);
+	border:2px rgb(50,50,255) none;
+}
+input[type="submit"]:hover,input[type="button"]:hover {
+	background-color: rgb(70, 70, 255);
+}
+.spacer {
+    width: 50px;
+}
+.spacer2 {
+    width: 150px;
+}
+.container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+.item {
+    background-color: lightblue;
+    text-align: center;
+    padding: 9px;
+}
+.item2 {
+    background-color: rgb(255,255,150);
+    text-align: center;
+    width: 200px;
+	padding: 5px;
+}
+a:link {color:rgb(0,0,255); text-decoration:none;} 
+a:visited {color:rgb(0,0,255); text-decoration:none;} 
+a:hover {color:rgb(200,0,0); text-decoration:underline;} 
+a:active {color:rgb(50,50,50); text-decoration:underline;}
