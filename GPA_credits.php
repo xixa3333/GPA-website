@@ -24,23 +24,7 @@
 <head>
     <title>GPA計算網站</title>
     <meta charset="utf-8">
-	<style>
-		.container {
-            display: flex;
-			justify-content: center;
-        }
-		.item {
-            background-color: lightblue;
-            text-align: center;
-            padding: 9px;
-        }
-		.item2 {
-            background-color: rgb(255,255,150);
-            text-align: center;
-            width: 200px;
-			padding: 5px;
-        }
-	</style>
+	<link href="style.css" rel="stylesheet">
 </head>
 <body>
     <br>

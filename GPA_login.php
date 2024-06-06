@@ -30,7 +30,7 @@
 			exit();
 		}
 	}
-	
+	//input[type="text"]
 	mysqli_close($conn);
 ?>
 
@@ -38,23 +38,31 @@
 	<head>
 		<title>GPA計算網站</title>
 		<meta charset="utf-8">
+		<link href="style.css" rel="stylesheet">
+		<style>
+			input[type="submit"],input[type="button"]{
+				width:200px;
+			}
+		</style>
 	<head>
 <body>
+
 	<center>
-	<br>
-	<h1>GPA與學期成績計算網站登入</h1><br>
+	<br/>
+	<h1>GPA與學期成績計算網站登入</h1><br/>
 	<hr>
 	<?if(isset($_GET["account"]) && isset($_GET["password"])&&$login==0)echo "<font color='red'>帳號密碼錯誤，請重新輸入。</font>";?>
+	<br style="line-height:120%;"/>
 	<form method="get">
-	<br>
-		帳號：<input type="text" name="account" required size="20" />
-		<br>
-		密碼：<input type="password" name="password" required size="20" />
-		<br><br>
+	
+		<input type="text" placeholder="帳號" name="account" required size="20" />
+		<br></br>
+		<input type="password" placeholder="密碼" name="password" required size="20" />
+		<p/>
 		<input type="submit" value="登入"/>
-		<input type="reset" value="重新輸入"/>
+		<br></br>
+		<input type="button" onclick="javascript:location.href='GPA_register.php'" value="註冊帳號">
 	</form>
-	<a href='GPA_register.php'>註冊帳號</a>
 	</center>
 </body>
 </html>

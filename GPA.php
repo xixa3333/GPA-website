@@ -79,7 +79,7 @@ if (!isset($_COOKIE ["account"])) {
 	setcookie("account[sort]",'Required_elective',$date);
 	setcookie("account[order]",'asc',$date);
 	setcookie("account[GPA_sort]",'NKUST',$date);
-	header ("Location:GPA.php");
+	header ("Location:GPA.php?GPA_sort=NKUST");
 	exit();
 }
 
@@ -259,12 +259,14 @@ if (isset($_GET['number_of_subjects']) || isset($_GET['suject']) || isset($_GET[
 }
 else if (mysqli_num_rows($res) != 0) {//在此學期有資料並且不是在更新刪除新增資料時
 	//將加總好的資料從資料表抓出來
+	
     $sql_str = "SELECT * FROM `$totalname` WHERE `table_name`='$tableName'";
     $res = mysqli_query($conn, $sql_str);
     $row_array = mysqli_fetch_assoc($res);
     $GPA_total = $row_array['GPA_total'];
     $score_total = $row_array['score_total'];
     $credit_total = $row_array['credit_total'];
+	
 	$GPA_total = number_format($GPA_total, 2);
 	$score_total = number_format($score_total, 2);
 }
@@ -275,28 +277,18 @@ else if (mysqli_num_rows($res) != 0) {//在此學期有資料並且不是在更�
 <head>
     <meta charset="UTF-8">
     <title>GPA計算網站</title>
-	
+	<link href="style.css" rel="stylesheet">
 	<style>
-		.container2 {
-			display: flex;
-			justify-content: end;
-			align-items: center;
-        }
-		.item {
-            background-color: lightblue;
+		select{
+			width:100px;
+		}
+		.item{
+			text-align: right;
+		}
+		.center-text {
+            flex-grow: 2;
             text-align: center;
-            padding: 10px;
         }
-		.spacer {
-            width: 430px; /* 可控的间距宽度 */
-        }
-		.spacer2 {
-            width: 50px; /* 可控的间距宽度 */
-        }
-		a:link {color:rgb(0,0,255); text-decoration:none;} 
-		a:visited {color:rgb(0,0,255); text-decoration:none;} 
-		a:hover {font-size:20; color:rgb(200,0,0); text-decoration:underline;} 
-		a:active {color:rgb(50,50,50); text-decoration:underline;}
 	</style>
 	
 </head>
@@ -304,20 +296,20 @@ else if (mysqli_num_rows($res) != 0) {//在此學期有資料並且不是在更�
 <br>
 <center>
 
-<div class="container2">
-<h1>GPA與學期成績計算網站</h1>
-<div class="spacer"></div>
+<div class="container" style="justify-content: space-between;">
+<div class="spacer2"></div>
+<h1 class="center-text">GPA與學期成績計算網站</h1>
 <a class="item" href='GPA_login.php?logout=true'>登出</a>
 <a class="item" href='GPA.php?delete=true'>刪除此帳號</a>
 </div>
 
-<div class="container2" style="justify-content: center;">
+<div class="container">
 <form action="GPA_credits.php" method="GET">
-    <input type="submit" value="計算總學分">
+    <input class="item2" type="submit" value="計算總學分">
 </form>
-<div class="spacer2"></div>
-<form align="center" action="GPA_insert.php" method="POST">
-    <input type="submit" value="新增資料">
+<div class="spacer"></div>
+<form action="GPA_insert.php" method="POST">
+    <input class="item2" type="submit" value="新增資料">
 </form>
 </div>
 
@@ -327,7 +319,7 @@ else if (mysqli_num_rows($res) != 0) {//在此學期有資料並且不是在更�
 
 <!-- 學年度和排序選擇表單 -->
 <form action="" method="get">
-<div class="container2" style="justify-content: center;">
+<div class="container" style="justify-content: center;">
     學年度：
     <select name="year" required onchange="this.form.submit()">
         <option value="112up" <?= $year == '112up' ? 'selected' : '' ?>>112上學期</option>
@@ -339,7 +331,7 @@ else if (mysqli_num_rows($res) != 0) {//在此學期有資料並且不是在更�
         <option value="115up" <?= $year == '115up' ? 'selected' : '' ?>>115上學期</option>
 		<option value="115down" <?= $year == '115down' ? 'selected' : '' ?>>115下學期</option>
     </select>
-	<div class="spacer2"></div>
+	<div class="spacer"></div>
     排序：
     <select name="sort" required onchange="this.form.submit()">
         <option value="Required_elective" <?= $sort == 'Required_elective' ? 'selected' : '' ?>>選必修</option>
@@ -349,13 +341,13 @@ else if (mysqli_num_rows($res) != 0) {//在此學期有資料並且不是在更�
         <option value="credit" <?= $sort == 'credit' ? 'selected' : '' ?>>學分</option>
         <option value="GPA" <?= $sort == 'GPA' ? 'selected' : '' ?>>GPA</option>
     </select>
-	<div class="spacer2"></div>
+	<div class="spacer"></div>
     升降序：
     <select name="order" required onchange="this.form.submit()">
         <option value="asc" <?= $order == 'asc' ? 'selected' : '' ?>>升序</option>
         <option value="desc" <?= $order == 'desc' ? 'selected' : '' ?>>降序</option>
     </select>
-	<div class="spacer2"></div>
+	<div class="spacer"></div>
     GPA計算方式：
     <select name="GPA_sort" required onchange="this.form.submit()">
         <option value="NKUST" <?= $GPA_sort == 'NKUST' ? 'selected' : '' ?>>高科GPA4.0</option>
@@ -408,11 +400,11 @@ if (mysqli_num_rows($res) != 0) {
 </table>
 <p>
 
-<div class="container2" style="justify-content: center;">
+<div class="container" style="justify-content: center;">
 學期成績：<?= $score_total ?>
-<div class="spacer2"></div>
+<div class="spacer"></div>
 學期總獲得學分：<?= $credit_total ?>
-<div class="spacer2"></div>
+<div class="spacer"></div>
 學期GPA：<?= $GPA_total ?>
 </div>
 
@@ -424,22 +416,24 @@ if (mysqli_num_rows($res) != 0) {
 
 <p>
 <b>學期成績計算公式：(各科成績 * 各科學分) 全相加後 / 總學分</b>
-<div class="container2" style="justify-content: center;">
+<div class="container"">
 <div class="item" style="background-color: rgb(255,255,100);padding: 7px;">
+<div  align="center">
 <?
 if($GPA_sort=='NKUST')echo "高科GPA4.0";
 elseif($GPA_sort=='TW0')echo "台灣GPA4.0";
 elseif($GPA_sort=='TW3')echo "台灣GPA4.3";
 ?>
 計算方式：
+</div>
 <table align="center" border="1">
     <colgroup>
         <col style="width: 200px;">
         <col style="width: 200px;">
     </colgroup>
     <tr>
-        <th>成績</th>
-        <th>GPA</th>
+        <th align="center">成績</th>
+        <th align="center">GPA</th>
     </tr>
     
     <?php
@@ -494,6 +488,7 @@ elseif($GPA_sort=='TW3')echo "台灣GPA4.3";
 if($GPA_sort=='NKUST')echo '<a href="https://acad.nkust.edu.tw/var/file/4/1004/img/382/L-7-1re(1).pdf">GPA資料來源</a>';
 elseif($GPA_sort=='TW0')echo '<a href="https://www.tkbgo.com.tw/zone/english/news/toNewsDetail.jsp?news_id=4872#target3-2">GPA資料來源</a>';
 elseif($GPA_sort=='TW3')echo '<a href="https://www.tkbgo.com.tw/zone/english/news/toNewsDetail.jsp?news_id=4872#target3-2">GPA資料來源</a>';
+mysqli_close($conn);
 ?>
 
 </center>
