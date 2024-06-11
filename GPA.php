@@ -284,6 +284,10 @@ else if (mysqli_num_rows($res) != 0) {//在此學期有資料並且不是在更�
 		}
 		.item{
 			text-align: right;
+			background-color: rgb(170,170,255);
+			padding: 7px;
+			border-radius:10px;
+			-webkit-filter: drop-shadow(0px 0px 10px rgb(100,100,100));
 		}
 		.center-text {
             flex-grow: 2;
@@ -293,29 +297,32 @@ else if (mysqli_num_rows($res) != 0) {//在此學期有資料並且不是在更�
 	
 </head>
 <body>
-<br>
 <center>
 
-<div class="container" style="justify-content: space-between;">
+<div class="container" style="justify-content: space-between;align-items: stretch;">
 <div class="spacer2"></div>
 <h1 class="center-text">GPA與學期成績計算網站</h1>
-<a class="item" href='GPA_login.php?logout=true'>登出</a>
-<a class="item" href='GPA.php?delete=true'>刪除此帳號</a>
+<a href='GPA_login.php?logout=true'>登出</a>
+｜
+<a href='GPA_forget.php'>修改密碼</a>
+｜
+<a href='GPA.php?delete=true'>刪除此帳號</a>
 </div>
-
 <div class="container">
 <form action="GPA_credits.php" method="GET">
-    <input class="item2" type="submit" value="計算總學分">
+    <input type="submit" value="計算總學分">
 </form>
 <div class="spacer"></div>
 <form action="GPA_insert.php" method="POST">
-    <input class="item2" type="submit" value="新增資料">
+    <input type="submit" value="新增資料">
 </form>
 </div>
 
 <p>
 <hr>
 <p>
+
+
 
 <!-- 學年度和排序選擇表單 -->
 <form action="" method="get">
@@ -359,6 +366,8 @@ else if (mysqli_num_rows($res) != 0) {//在此學期有資料並且不是在更�
 
 <p>
 
+
+
 <?php
 // 資料顯示
 $sql_str = "SELECT * FROM $tableName ORDER BY $sort $order";
@@ -400,6 +409,8 @@ if (mysqli_num_rows($res) != 0) {
 </table>
 <p>
 
+
+
 <div class="container" style="justify-content: center;">
 學期成績：<?= $score_total ?>
 <div class="spacer"></div>
@@ -414,10 +425,12 @@ if (mysqli_num_rows($res) != 0) {
 }
 ?>
 
+
+
 <p>
 <b>學期成績計算公式：(各科成績 * 各科學分) 全相加後 / 總學分</b>
-<div class="container"">
-<div class="item" style="background-color: rgb(255,255,100);padding: 7px;">
+<div class="container">
+<div class="item">
 <div  align="center">
 <?
 if($GPA_sort=='NKUST')echo "高科GPA4.0";
