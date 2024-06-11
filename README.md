@@ -27,5 +27,6 @@
 * 顯示學期總學分、學期成績、學期GPA 和高科學期GPA計算方式
 
 **網站畫面**
-![image](https://github.com/xixa3333/GPA-website/assets/128284090/c88c1259-36e9-47d5-8260-bd65516177c7)
+![image](https://github.com/xixa3333/GPA-website/assets/128284090/fefa6b5b-365b-4c71-ba03-3200993c03c1)
+
 
