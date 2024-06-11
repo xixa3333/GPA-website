@@ -91,6 +91,7 @@
 	<div class="item2">專業必修：<?php echo $Required_majors ?>/53</div>
 	<div class="item2">共同必修：<?php echo $common ?>/12</div>
 </div>
+
 <div class="container">
 	<div class="item">總平均成績：<?php echo $score_total2 ?></div>
 	<div class="item">總獲得學分：<?php echo $credit_total2 ?></div>

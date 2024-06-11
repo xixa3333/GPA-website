@@ -1,5 +1,12 @@
 @charset "UTF-8";
 
+.back{
+	position: fixed;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 100%;
+}
 form{
 	line-height:40%;
 }
@@ -16,17 +23,19 @@ input[type="text"],input[type="password"],input[type="number"],select{
 	width:200px;
 	height:30px;
 	border-radius:5px;
-	background-color: rgb(240,240,240);
-	border:2px rgb(50,50,255) none;
+	border:2px rgb(100,100,100) double;
 }
 input[type="submit"]:hover,input[type="button"]:hover {
 	background-color: rgb(70, 70, 255);
+}
+select:hover{
+	background-color: rgb(230,230,230);
 }
 .spacer {
     width: 50px;
 }
 .spacer2 {
-    width: 150px;
+    width: 200px;
 }
 .container {
 	display: flex;
@@ -43,6 +52,42 @@ input[type="submit"]:hover,input[type="button"]:hover {
     text-align: center;
     width: 200px;
 	padding: 5px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+.item3 {
+	background-color: rgb(100,100,255);
+	text-align: center;
+	color:rgb(255,255,255);
+	width: 240px;
+	padding: 5px;
+	font-weight:bold;
+	border-radius:5px 5px 0px 0px;
+}
+.cen{
+	position: absolute;
+    top: 300;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+}
+.box{
+    display: flex;
+	justify-content: center;
+	align-items: center;
+    width: 197px;
+    height: 26px;
+	border: rgb(100,100,100) 2px double;
+	border-radius:5px;
+}
+.box img{
+    width: 20px;
+}
+.box input{
+    width: 180px;
+	height: 25px;
+	border: 0; 
+    outline: none;
 }
 a:link {color:rgb(0,0,255); text-decoration:none;} 
 a:visited {color:rgb(0,0,255); text-decoration:none;} 
