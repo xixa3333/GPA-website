@@ -69,12 +69,12 @@ session_start();
 		<br></br>
 		<div class="box">
 			<input type="password" id="psw" placeholder="修改密碼" name="password" required size="20"/>
-			<img src="close.jpg" alt="" id="eye"></img>
+			<img src="https://cdn-icons-png.flaticon.com/512/2767/2767146.png" alt="" id="eye"></img>
 		</div>
 		<br/>
 		<div class="box">
 			<input type="password" id="psw2" placeholder="確認密碼" name="confirm" required size="20"/>
-			<img src="close.jpg" alt="" id="eye2"></img>
+			<img src="https://cdn-icons-png.flaticon.com/512/2767/2767146.png" alt="" id="eye2"></img>
 		</div>
 		<p/>
 		<input type="submit" value="修改密碼"/>

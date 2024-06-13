@@ -1,14 +1,26 @@
 <?php
 session_start();
-//判斷是否刪除帳號
-if (isset($_GET["delete"]) && $_GET["delete"] == "true") {
-	echo '<script>let YES=confirm("確定要刪除帳號嗎?"); if(YES==1)location.href = "GPA.php?enter=1";</script>';
-}
+// 連接到資料庫
+include("db_connect.php");
+
 //判斷無登入帳號
 if (!isset($_SESSION["user"]) || $_SESSION["user"] == ""){
 	header("Location: GPA_login.php");
 	exit();
 }
+else{//有登入帳號判斷是否為管理員
+	$sql_str = "SELECT * FROM `account`";
+	$res = mysqli_query($conn, $sql_str);
+	
+	while ($row_array = mysqli_fetch_assoc($res)){
+		foreach ($row_array as $key => $item){
+			if($key=='user')$account=$item;
+			if($key=='manage')$manage=$item;
+		}
+		if($_SESSION["user"]==$account)break;
+	}
+}
+
 //判斷此網頁已閒置1小時
 if (isset($_SESSION['expiretime']) && time() >= $_SESSION['expiretime']) {
     session_unset();
@@ -79,12 +91,10 @@ if (!isset($_COOKIE ["account"])) {
 	setcookie("account[sort]",'Required_elective',$date);
 	setcookie("account[order]",'asc',$date);
 	setcookie("account[GPA_sort]",'NKUST',$date);
+	setcookie("account[user]",$_SESSION['account'],$date);
 	header ("Location:GPA.php?GPA_sort=NKUST");
 	exit();
 }
-
-// 連接到資料庫
-include("db_connect.php");
 
 // 處理排序選擇的值
 if (isset($_GET['year'])) {
@@ -93,21 +103,28 @@ if (isset($_GET['year'])) {
 	setcookie("account[order]",$_GET['order'],$date);
 	setcookie("account[GPA_sort]",$_GET['GPA_sort'],$date);
     list($year, $sort, $order,$GPA_sort) = [$_GET['year'], $_GET['sort'], $_GET['order'],$_GET['GPA_sort']];
+	if(isset($_GET['user'])){
+		setcookie("account[user]",$_GET['user'],$date);
+		$user=$_GET['user'];
+	}
+	else $user=$_COOKIE['account']['user'];
 } else {
     list($year, $sort, $order,$GPA_sort) = [$_COOKIE['account']['year'], $_COOKIE['account']['sort'], $_COOKIE['account']['order'], $_COOKIE['account']['GPA_sort']];
+	$user=$_COOKIE['account']['user'];
 }
 
 //命名
-$tableName = "table_" . $year.$_SESSION["user"];
-$totalname='total'.$_SESSION["user"];
+$tableName = "table_" . $year.$user;
+$totalname='total'.$user;
 
 //確定刪除帳號
-if (isset($_GET["enter"]) && $_GET["enter"] == 1) {
-    $sql_str = "DELETE FROM `account` WHERE `user`='".$_SESSION["user"]."';";//清除帳號資料
+if (isset($_GET["enter"])) {
+	if($_GET["enter"] == 1)$user=$_SESSION["user"];
+    $sql_str = "DELETE FROM `account` WHERE `user`='".$user."';";//清除帳號資料
     @mysqli_query($conn, $sql_str);
 	
 	//清除與帳號相關資料表
-	$sql_str = "SELECT table_name FROM information_schema.tables WHERE table_schema = 'C112151111' AND table_name LIKE '%".$_SESSION["user"]."'";
+	$sql_str = "SELECT table_name FROM information_schema.tables WHERE table_schema = 'C112151111' AND table_name LIKE '%".$user."'";
     $res = @mysqli_query($conn, $sql_str);
 	while($row = mysqli_fetch_assoc($res)) {
         $table_name = $row["table_name"];
@@ -115,9 +132,24 @@ if (isset($_GET["enter"]) && $_GET["enter"] == 1) {
         @mysqli_query($conn, $drop_sql);
     }
 	//清除帳號登入資料
-	session_unset();
-    session_destroy();
-    header("Location: GPA_login.php");
+    if($_GET["enter"] == 1){
+		session_unset();
+		session_destroy();
+		header("Location: GPA_login.php");
+	}
+	else {
+		$sql_str = "SELECT * FROM `account`";
+		$res = mysqli_query($conn, $sql_str);
+		while ($row_array = mysqli_fetch_assoc($res)){
+			foreach ($row_array as $key => $item){
+				if($key=='user')$account2=$item;
+				if($key=='manage')$manage2=$item;
+			}
+			if($manage2==0)break;
+		}
+		setcookie("account[user]","$account2",$date);
+		header("Location: GPA.php");
+	}
     exit();
 }
 
@@ -228,6 +260,7 @@ if (isset($_GET['number_of_subjects']) || isset($_GET['suject']) || isset($_GET[
 			if ($score < 60) $credit = 0;
 			$credit_total += $credit;
 		}
+		if($Original_credits==0)$Original_credits=1;
 		@$GPA_total /= $Original_credits;
 		@$score_total /= $Original_credits;
 		$GPA_total = number_format($GPA_total, 2);
@@ -282,17 +315,43 @@ else if (mysqli_num_rows($res) != 0) {//在此學期有資料並且不是在更�
 		select{
 			width:100px;
 		}
-		.item{
-			text-align: right;
-			background-color: rgb(170,170,255);
-			padding: 7px;
-			border-radius:10px;
-			-webkit-filter: drop-shadow(0px 0px 10px rgb(100,100,100));
-		}
 		.center-text {
-            flex-grow: 2;
             text-align: center;
         }
+		#my_back {
+			display: none;
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background-color: rgba(0, 0, 0, 0.5);
+			z-index: 1;
+		}
+		#my_pic {
+			display: none;
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			background-color: white;
+			padding: 20px;
+			box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+			z-index: 2;
+			border-radius:5px;
+		}
+		#my_pic2 {
+			display: none;
+			position: fixed;
+			top: 7%;
+			left: 90%;
+			
+			background-color: white;
+			padding: 20px;
+			box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+			z-index: 1;
+			border-radius:5px;
+		}
 	</style>
 	
 </head>
@@ -300,22 +359,18 @@ else if (mysqli_num_rows($res) != 0) {//在此學期有資料並且不是在更�
 <center>
 
 <div class="container" style="justify-content: space-between;align-items: stretch;">
-<div class="spacer2"></div>
+<b style="font-size:17px;">歡迎：<?echo $_SESSION['user'];?></b>
+<div></div>
 <h1 class="center-text">GPA與學期成績計算網站</h1>
-<a href='GPA_login.php?logout=true'>登出</a>
-｜
-<a href='GPA_forget.php'>修改密碼</a>
-｜
-<a href='GPA.php?delete=true'>刪除此帳號</a>
+<div class="spacer2"></div>
+<img src="https://cdn-icons-png.flaticon.com/512/3502/3502458.png" alt="" id="three_line" style="width:35px;height:35px;"></img>
+<div id="my_pic2"></div>
 </div>
+
 <div class="container">
-<form action="GPA_credits.php" method="GET">
-    <input type="submit" value="計算總學分">
-</form>
+<input type="button" onclick="openTableInNewWindowgrade()" value="換算公式"><p>
 <div class="spacer"></div>
-<form action="GPA_insert.php" method="POST">
-    <input type="submit" value="新增資料">
-</form>
+<input type="button" onclick="openTableInNewWindow('<?=$GPA_sort;?>')" value="GPA換算"><p>
 </div>
 
 <p>
@@ -326,7 +381,7 @@ else if (mysqli_num_rows($res) != 0) {//在此學期有資料並且不是在更�
 
 <!-- 學年度和排序選擇表單 -->
 <form action="" method="get">
-<div class="container" style="justify-content: center;">
+<div class="container"">
     學年度：
     <select name="year" required onchange="this.form.submit()">
         <option value="112up" <?= $year == '112up' ? 'selected' : '' ?>>112上學期</option>
@@ -361,6 +416,26 @@ else if (mysqli_num_rows($res) != 0) {//在此學期有資料並且不是在更�
         <option value="TW0" <?= $GPA_sort == 'TW0' ? 'selected' : '' ?>>台灣GPA4.0</option>
 		<option value="TW3" <?= $GPA_sort == 'TW3' ? 'selected' : '' ?>>台灣GPA4.3</option>
     </select>
+	<?if($manage==1){//判斷為管理員帳號?>
+	<div class="spacer"></div>
+    學生帳號：
+    <select name="user" required onchange="this.form.submit()">
+		<?
+		$sql_str = "SELECT * FROM `account`";
+		$res = mysqli_query($conn, $sql_str);
+		//抓取學生帳號
+		while ($row_array = mysqli_fetch_assoc($res)){
+			foreach ($row_array as $key => $item){
+				if($key=='user')$account=$item;
+				if($key=='manage')$manage2=$item;
+			}
+			if($manage2==0){
+				echo '<option value="' . $account . '" ' . ($user == $account ? 'selected' : '') . '>' . $account . '</option>';
+			}
+		}
+		?>
+    </select>
+	<?}?>
 </div>
 </form>
 
@@ -372,7 +447,7 @@ else if (mysqli_num_rows($res) != 0) {//在此學期有資料並且不是在更�
 // 資料顯示
 $sql_str = "SELECT * FROM $tableName ORDER BY $sort $order";
 $res = mysqli_query($conn, $sql_str);
-if (mysqli_num_rows($res) != 0) {
+if (@mysqli_num_rows($res) != 0) {
 ?>
 
 <table align="center" border="1" style="text-align: center;">
@@ -385,7 +460,7 @@ if (mysqli_num_rows($res) != 0) {
         <col style="width: 200px;">
         <col style="width: 200px;">
     </colgroup>
-    <tr style="background-color:rgb(100,100,240);">
+    <tr style="background-color:rgb(120,120,240);">
         <th>選必修</th>
         <th>課程分類</th>
         <th>科目</th>
@@ -396,7 +471,7 @@ if (mysqli_num_rows($res) != 0) {
     </tr>
 
     <?php while ($row_array = mysqli_fetch_assoc($res)): ?>
-        <tr style="background-color:rgb(170,170,250);">
+        <tr style="background-color:rgb(200,200,250);">
             <?php foreach ($row_array as $key => $item): ?>
                 <td><font <?= ($key == 'score' && $item < 60) ? 'color="red"' : '' ?>><?= ($key=='GPA')?number_format($item, 1):$item; ?></font></td>
             <?php endforeach; ?>
@@ -409,8 +484,6 @@ if (mysqli_num_rows($res) != 0) {
 </table>
 <p>
 
-
-
 <div class="container" style="justify-content: center;">
 學期成績：<?= $score_total ?>
 <div class="spacer"></div>
@@ -422,87 +495,59 @@ if (mysqli_num_rows($res) != 0) {
 <?php
 } else {
     echo '<p align="center">你沒有資料喔</p>';
+	mysqli_close($conn);
 }
 ?>
 
-
-
 <p>
-<b>學期成績計算公式：(各科成績 * 各科學分) 全相加後 / 總學分</b>
+
 <div class="container">
-<div class="item">
-<div  align="center">
-<?
-if($GPA_sort=='NKUST')echo "高科GPA4.0";
-elseif($GPA_sort=='TW0')echo "台灣GPA4.0";
-elseif($GPA_sort=='TW3')echo "台灣GPA4.3";
-?>
-計算方式：
+<form action="GPA_credits.php" method="GET">
+    <input type="submit" value="計算總學分">
+</form>
+<div class="spacer"></div>
+<input type="button" onclick="openinputInNewWindow()" value="新增資料">
+<?if($manage==1){?>
+<div class="spacer"></div>
+<input type="button" onclick="deleteAccount(2)" value="刪除此帳號">
+<?}?>
 </div>
-<table align="center" border="1">
-    <colgroup>
-        <col style="width: 200px;">
-        <col style="width: 200px;">
-    </colgroup>
-    <tr>
-        <th align="center">成績</th>
-        <th align="center">GPA</th>
-    </tr>
-    
-    <?php
-	if($GPA_sort=='NKUST'){
-		for ($j = 0; $j < 4; $j++) {
-			echo '<tr>';
-			echo '<td align="center">小於' . (50 + $j * 10) . '</td>';
-			echo '<td align="center">' . $j . '</td>';
-			echo '</tr>';
-		}
-		?>
-		<tr>
-			<td align="center">大於等於80</td>
-			<td align="center">4</td>
-		</tr>
-	<?}
-	if($GPA_sort=='TW0'){
-	?>
-		<tr><td align="center">60以下</td><td align="center">0</td></tr>
-		<tr><td align="center">60-62</td><td align="center">0.7</td></tr>
-		<tr><td align="center">63-66</td><td align="center">1.0</td></tr>
-		<tr><td align="center">67-69</td><td align="center">1.3</td></tr>
-		<tr><td align="center">70-72</td><td align="center">1.7</td></tr>
-		<tr><td align="center">73-76</td><td align="center">2.0</td></tr>
-		<tr><td align="center">77-79</td><td align="center">2.3</td></tr>
-		<tr><td align="center">80-82</td><td align="center">2.7</td></tr>
-		<tr><td align="center">83-86</td><td align="center">3.0</td></tr>
-		<tr><td align="center">87-89</td><td align="center">3.3</td></tr>
-		<tr><td align="center">90-92</td><td align="center">3.7</td></tr>
-		<tr><td align="center">93-100</td><td align="center">4.0</td></tr>
-	<?}
-	if($GPA_sort=='TW3'){
-	?>
-	<tr><td align="center">60以下</td><td align="center">0</td></tr>
-	<tr><td align="center">60-62</td><td align="center">1.7</td></tr>
-	<tr><td align="center">63-66</td><td align="center">2.0</td></tr>
-	<tr><td align="center">67-69</td><td align="center">2.3</td></tr>
-	<tr><td align="center">70-72</td><td align="center">2.7</td></tr>
-	<tr><td align="center">73-76</td><td align="center">3.0</td></tr>
-	<tr><td align="center">77-79</td><td align="center">3.3</td></tr>
-	<tr><td align="center">80-84</td><td align="center">3.7</td></tr>
-	<tr><td align="center">85-89</td><td align="center">4.0</td></tr>
-	<tr><td align="center">90-100</td><td align="center">4.3</td></tr>
-	<?}	?>
-	
-</table>
-</div>
-</div>
+<div id="my_back"></div>
+<div id="my_pic"></div>
+<script src="Pop-up_window.js"></script>
 
-<p>
-<?
-if($GPA_sort=='NKUST')echo '<a href="https://acad.nkust.edu.tw/var/file/4/1004/img/382/L-7-1re(1).pdf">GPA資料來源</a>';
-elseif($GPA_sort=='TW0')echo '<a href="https://www.tkbgo.com.tw/zone/english/news/toNewsDetail.jsp?news_id=4872#target3-2">GPA資料來源</a>';
-elseif($GPA_sort=='TW3')echo '<a href="https://www.tkbgo.com.tw/zone/english/news/toNewsDetail.jsp?news_id=4872#target3-2">GPA資料來源</a>';
-mysqli_close($conn);
-?>
+<script>
+	function deleteAccount(num) {
+        if (confirm("確定要刪除帳號嗎?")) {
+            location.href = `GPA.php?enter=${num}`;
+        }
+    }
+	
+	function openlineInNewWindow(three_line,flag) {//用來顯示旁邊整行
+		three_line.onclick=function(){
+			if(flag==0){
+				let manageValue = <?php echo json_encode($manage); ?>;
+				let str1 = "<a href='GPA_login.php?logout=true'>登出</a><hr>";
+				let str2="<a href='GPA_forget.php'>修改密碼</a><hr>";
+				let str3='';
+				if(manageValue==1)str3 = "<a href='GPA_register.php'>註冊管理員帳號</a><hr>";
+				
+				let str4 = '<a href="#" onclick="deleteAccount(1); return false;">刪除登入帳號</a>';
+				document.getElementById('my_pic2').innerHTML =str1 + str2 + str3 +str4
+				document.getElementById('my_pic2').style.display = "block";
+				flag=1;
+			}
+			else{
+				document.getElementById('my_pic2').style.display = "none";
+				flag=0;
+			}
+		}
+    }
+	
+	let flag = 0;
+	let three_line = document.getElementById('three_line');
+	openlineInNewWindow(three_line,flag);
+</script>
 
 </center>
 </body>

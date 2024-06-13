@@ -2,11 +2,11 @@ function togglePassword(eye, psw, flag) {
     eye.onclick = function() {
         if (flag == 0) {
             psw.type = 'text';
-            eye.src = 'open.jpg';
+            eye.src = 'https://cdn-icons-png.flaticon.com/512/709/709612.png';
             flag = 1;
         } else {
             psw.type = 'password';
-            eye.src = 'close.jpg';
+            eye.src = 'https://cdn-icons-png.flaticon.com/512/2767/2767146.png';
             flag = 0;
         }
     }

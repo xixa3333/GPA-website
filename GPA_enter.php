@@ -24,7 +24,7 @@ if (isset($_SESSION['expiretime']) && time() >= $_SESSION['expiretime']) {
         <p></p>
         <?php
         // 輸入科目成績等
-        for($i = 1; $i <= $_GET['number_of_subjects']; $i++) {
+        for($i = 1; $i <= @$_GET['number_of_subjects']; $i++) {
 			echo '<div class="container">';
             echo '必選修：<select name="Required_elective['.$i.']" required style="width: 100px;"><option>必修</option><option>選修</option></select>  ';
 			echo '<div class="spacer"></div>';

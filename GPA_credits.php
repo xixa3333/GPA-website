@@ -5,9 +5,8 @@
 		exit();
 	}
 		include("db_connect.php");
-		$totalname='total'.$_SESSION["user"];
+		$totalname='total'.$_COOKIE['account']['user'];
 		$sql_str = "SELECT * FROM `$totalname`";
-		$res = mysqli_query($conn, $sql_str);
 		$res = mysqli_query($conn, $sql_str);
 		
 		$Required_majors=0;
@@ -67,8 +66,6 @@
 							}
 						}
 					}
-					
-					
 				}
 				$GPA_total2+=($Original_credits*$GPA_total);
 				$score_total2+=($Original_credits*$score_total);

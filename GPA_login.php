@@ -12,8 +12,13 @@
 		exit();
 	}
 	
+	//已經登入
+	if (!(!isset($_SESSION["user"]) || $_SESSION["user"] == "")){
+		header("Location: GPA.php");
+		exit();
+	}
 	
-	$date = date("Y-m-d 23:59:59");
+	$date = strtotime(date("Y-m-d 23:59:59"));
 	if (isset($_GET["account"]) && isset($_GET["password"])) {
 		$sql_str = "SELECT * FROM `account`";
 		$res = mysqli_query($conn, $sql_str);
@@ -23,6 +28,7 @@
 				if($key=='user')$account=$item;
 				if($key=='password')$password=$item;
 				if($key=='Revise_Time')$Revise_Time=$item;
+				if($key=='manage')$manage=$item;
 			}
 			if($_GET['account']==$account and $_GET['password']==$password){
 				$login=1;
@@ -40,8 +46,28 @@
 			$_SESSION["user"] = $_GET['account'];
 			$_SESSION['expiretime'] = time() + 60*60;
 			
+			if($manage==1){
+				$sql_str = "SELECT * FROM `account`";
+				$res = mysqli_query($conn, $sql_str);
+				while ($row_array = mysqli_fetch_assoc($res)){
+					foreach ($row_array as $key => $item){
+						if($key=='user')$account2=$item;
+						if($key=='manage')$manage2=$item;
+					}
+					if($manage2==0)break;
+				}
+				setcookie("account[user]","$account2",$date);
+			}
+			else setcookie("account[user]",$_GET['account'],$date);
+			
 			if($daysDifference>7)echo "<script>alert('你已經"."$daysDifference"."天沒更新密碼了，記得定期更新呦');</script>";
-			echo "<script>location.href = 'GPA.php';</script>";
+			
+			setcookie("account[year]",'112up',$date);
+			setcookie("account[sort]",'Required_elective',$date);
+			setcookie("account[order]",'asc',$date);
+			setcookie("account[GPA_sort]",'NKUST',$date);
+			
+			echo "<script>location.href = 'GPA.php?GPA_sort=NKUST';</script>";
 			exit();
 		}
 		else echo '<script>alert("帳號密碼錯誤，請重新輸入");</script>';
@@ -77,7 +103,7 @@
 		<br></br>
 			<div class="box">
 			<input type="password" id="psw" placeholder="密碼" name="password" required size="20"/>
-			<img src="close.jpg" alt="" id="eye"></img>
+			<img src="https://cdn-icons-png.flaticon.com/512/2767/2767146.png" alt="" id="eye"></img>
 			</div>
 		<p/>
 		<input type="submit" value="登入"/>
