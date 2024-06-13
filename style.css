@@ -35,7 +35,7 @@ select:hover{
     width: 50px;
 }
 .spacer2 {
-    width: 200px;
+    width: 75px;
 }
 .container {
 	display: flex;
@@ -84,7 +84,7 @@ select:hover{
     width: 20px;
 }
 .box input{
-    width: 180px;
+    width: 175px;
 	height: 25px;
 	border: 0; 
     outline: none;
