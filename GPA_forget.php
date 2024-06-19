@@ -1,6 +1,79 @@
 <?
 include("db_connect.php");
 session_start();
+
+if(isset($_GET['token'])){
+		$sql_str = "SELECT * FROM `account` WHERE `token` = '".$_GET['token']."';";
+		$res = mysqli_query($conn, $sql_str);
+		if(mysqli_num_rows($res)==0 || !$res){
+			echo '<script>location.href = "GPA_login.php";</script>';
+			exit();//當取到錯誤的token時退出
+		}
+		$row_array = mysqli_fetch_assoc($res);
+		$manage = $row_array['manage'];
+		$Revise_password = $row_array['Revise_password'];
+		
+		if($manage<0){
+			echo '<script>alert("帳號未驗證");location.href = "GPA_login.php";</script>';
+			exit();
+		}
+		if($Revise_password==0){
+			echo '<script>location.href = "GPA_login.php";</script>';
+			exit();
+		}
+	}
+	
+	if(isset($_POST['token'])){
+		$sql_str = "SELECT * FROM `account` WHERE `token` = '".$_POST['token']."';";
+		$res = mysqli_query($conn, $sql_str);
+		if(mysqli_num_rows($res)==0 || !$res){
+			echo '<script>location.href = "GPA_login.php";</script>';
+			exit();//當隱藏傳值取到錯誤的token時退出
+		}
+		$row_array = mysqli_fetch_assoc($res);
+		$account = $row_array['user'];
+		$password = $row_array['password'];
+	}
+	
+	if(isset($_SESSION["user"])){//判斷從主頁面進來的
+		$sql_str = "SELECT * FROM `account` WHERE `user` = '".$_SESSION["user"]."';";
+		$res = mysqli_query($conn, $sql_str);
+		$row_array = mysqli_fetch_assoc($res);
+		$account = $_SESSION["user"];
+		$password = $row_array['password'];
+	}
+	
+	if (isset($account) && isset($_POST["password"]) && isset($_POST["confirm"])) {
+		
+		$password2=preg_replace('/\s/', '', trim($_POST["password"]));
+		$confirm=preg_replace('/\s/', '', trim($_POST["confirm"]));
+		
+		if($password2!=$confirm){
+			if((!isset($_SESSION["user"]) || $_SESSION["user"] == "") && isset($_POST['token']))
+				echo '<script>alert("密碼輸入錯誤");location.href = "GPA_forget.php?token='.$_POST['token'].'";</script>';
+			else echo '<script>alert("密碼輸入錯誤");location.href = "GPA_forget.php";</script>';
+			exit();
+		}
+		
+		if(password_verify($password2, $password)){
+			if((!isset($_SESSION["user"]) || $_SESSION["user"] == "") && isset($_POST['token']))
+				echo '<script>alert("密碼修改失敗，你輸入的是舊密碼");location.href = "GPA_forget.php?token='.$_POST['token'].'";</script>';
+			else echo '<script>alert("密碼修改失敗，你輸入的是舊密碼");location.href = "GPA_forget.php";</script>';
+			exit();
+		}
+		
+		$password2=password_hash($password2, PASSWORD_DEFAULT);
+		
+		$Revise_Time = date("Y-m-d");
+		$sql_str = "UPDATE `account` SET `password`='$password2',`Revise_Time`='$Revise_Time',`Revise_password`='0' WHERE `user`='$account';";
+		mysqli_query($conn, $sql_str);
+		echo '<script>alert("密碼修改成功");</script>';
+		if (!isset($_SESSION["user"]) || $_SESSION["user"] == "")echo '<script>location.href = "GPA_login.php";</script>';
+		else echo '<script>location.href = "GPA.php";</script>';
+		exit();
+	}
+	
+	mysqli_close($conn);
 ?>
 <html>
 	<head>
@@ -23,50 +96,13 @@ session_start();
 	<div class="cen">
 	<div class="item3">修改密碼</div>
 	<div class="item2">
-	<?
-	//此網頁來當單純修改密碼或忘記密碼時使用，所以會有兩種帳號取得方式
-	if ((isset($_SESSION["user"])||isset($_GET["account"])) && isset($_GET["password"]) && isset($_GET["confirm"])) {
 	
-		if($_GET['password']==$_GET["confirm"]){
-			$sql_str = "SELECT * FROM `account`";
-			$res = mysqli_query($conn, $sql_str);
-			while ($row_array = mysqli_fetch_assoc($res)){
-				foreach ($row_array as $key => $item){
-					if($key=='user' && ((isset($_SESSION["user"]) && $_SESSION["user"]==$item) || (isset($_GET["account"]) && $_GET["account"]==$item))){
-						$account=$item;
-						$flag=1;//抓到此帳號，用來判斷是否為舊密碼
-					}
-					
-					if(isset($account) && $key=='password' && $_GET['password']==$item && $flag==1){
-						echo '<script>alert("密碼修改失敗，你輸入的是舊密碼");location.href = "GPA_forget.php";</script>';
-						exit();
-					}
-				}
-				$flag=0;
-			}
-			//代表有此帳號且不為舊密碼
-			if(isset($account)){
-				$Revise_Time = date("Y-m-d");
-				$sql_str = "UPDATE `account` SET `password`='".$_GET['password']."',`Revise_Time`='$Revise_Time' WHERE `user`='$account';";
-				mysqli_query($conn, $sql_str);
-				echo '<script>alert("密碼修改成功");</script>';
-				if (!isset($_SESSION["user"]) || $_SESSION["user"] == "")echo '<script>location.href = "GPA_login.php";</script>';
-				else echo '<script>location.href = "GPA.php";</script>';
-				exit();
-			}
-			else echo '<script>alert("查無此帳號");</script>';
-		}
-		else echo '<script>alert("密碼錯誤");</script>';
-		mysqli_close($conn);
-	}
-	?>
-	
-	<form method="get">
+	<form method="POST">
 	<p></p>
-		<?if(!isset($_SESSION["user"]) || $_SESSION["user"] == ""){?>
-		<input type="text" placeholder="帳號" name="account" required />
+		<?if((!isset($_SESSION["user"]) || $_SESSION["user"] == "") && isset($_GET['token'])){?>
+		<input type="hidden" name="token" value="<?php echo $_GET['token']; ?>"/>
 		<?}?>
-		<br></br>
+		
 		<div class="box">
 			<input type="password" id="psw" placeholder="修改密碼" name="password" required size="20"/>
 			<img src="https://cdn-icons-png.flaticon.com/512/2767/2767146.png" alt="" id="eye"></img>

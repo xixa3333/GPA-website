@@ -143,7 +143,7 @@ function createTable(GPA_sort) {//用來製作GPA換算表格
 	
 	
 	function openinputInNewWindow() {//用來顯示詢問要輸入幾科的視窗
-		let str1 = '<p><form align="center" action="GPA_enter.php" method="get">';
+		let str1 = '<p><form align="center" action="GPA_enter.php" method="POST">';
 		let str2='<input placeholder="請輸入你有幾科" type="number" name="number_of_subjects" required minlength="1" maxlength="3" size="20" /><br></br>';
 		let str3='<div class="container"><input type="submit" value="確認"/><br></br>';
 		let str4='<div class="spacer" style="width: 10px;"></div>';

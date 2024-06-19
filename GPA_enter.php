@@ -19,12 +19,12 @@ if (isset($_SESSION['expiretime']) && time() >= $_SESSION['expiretime']) {
     <h1 align="center">GPA與學期成績計算網站</h1><br>
     <hr>
     <center>
-    <form action="GPA.php" method="get">
-        <input type="hidden" name="number_of_subjects" value="<?php echo $_GET['number_of_subjects']; ?>"/>
+    <form action="GPA.php" method="POST">
+        <input type="hidden" name="number_of_subjects" value="<?php echo $_POST['number_of_subjects']; ?>"/>
         <p></p>
         <?php
         // 輸入科目成績等
-        for($i = 1; $i <= @$_GET['number_of_subjects']; $i++) {
+        for($i = 1; $i <= @$_POST['number_of_subjects']; $i++) {
 			echo '<div class="container">';
             echo '必選修：<select name="Required_elective['.$i.']" required style="width: 100px;"><option>必修</option><option>選修</option></select>  ';
 			echo '<div class="spacer"></div>';
