@@ -1,5 +1,7 @@
 @charset "UTF-8";
-
+body{
+	cursor: default;
+}
 .back{
 	position: fixed;
 	top: 0;
@@ -27,9 +29,11 @@ input[type="text"],input[type="password"],input[type="number"],select{
 }
 input[type="submit"]:hover,input[type="button"]:hover {
 	background-color: rgb(70, 70, 255);
+	cursor: pointer;
 }
 select:hover{
 	background-color: rgb(230,230,230);
+	cursor: pointer;
 }
 .spacer {
     width: 50px;
@@ -88,6 +92,9 @@ select:hover{
 	height: 25px;
 	border: 0; 
     outline: none;
+}
+#eye:hover,#three_line:hover,#eye2:hover{
+	cursor: pointer;
 }
 a:link {color:rgb(0,0,255); text-decoration:none;} 
 a:visited {color:rgb(0,0,255); text-decoration:none;} 

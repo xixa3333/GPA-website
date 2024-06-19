@@ -1,9 +1,28 @@
 <?
 session_start();
+include("db_connect.php");
+
+//判斷無登入帳號
 if (!isset($_SESSION["user"]) || $_SESSION["user"] == ""){
 	header("Location: GPA_login.php");
 	exit();
 }
+
+$year=$_COOKIE['account']['year'];
+$tableName = "table_" . $year.$_SESSION["user"];
+$subjects=$_GET['suject'];
+
+//抓值
+$sql_str = "SELECT * FROM $tableName where `suject`='$subjects'";
+$res = mysqli_query($conn, $sql_str);
+$row_array = mysqli_fetch_assoc($res);
+
+$Required_elective = $row_array['Required_elective'];
+$course = $row_array['course'];
+$subjects = $row_array['suject'];
+$score = $row_array['score'];
+$credit = $row_array['credit'];
+mysqli_close($conn);
 ?>
 <!DOCTYPE html>
 <html>
@@ -16,27 +35,9 @@ if (!isset($_SESSION["user"]) || $_SESSION["user"] == ""){
     <br>
     <h1 align="center">GPA與學期成績計算網站</h1><br>
     <hr>
-	<?php
-		include("db_connect.php");
-		$year=$_COOKIE['account']['year'];
-		
-		$tableName = "table_" . $year.$_SESSION["user"];
-		
-		$subjects=$_GET['suject'];
-		$sql_str = "SELECT * FROM $tableName where `suject`='$subjects'";
-		$res = mysqli_query($conn, $sql_str);
-		$row_array = mysqli_fetch_assoc($res);
-
-		$Required_elective = $row_array['Required_elective'];
-		$course = $row_array['course'];
-		$subjects = $row_array['suject'];
-		$score = $row_array['score'];
-		$credit = $row_array['credit'];
-		mysqli_close($conn);
-	?>
     <center>
 	<br>
-    <form action="GPA.php" method="get">
+    <form action="GPA.php" method="POST">
 		<input type="hidden" name="update" value="<?php echo 1 ?>"/>
 	<div class="container">
 		必選修：<select name="Required_elective" required style="width: 100px;">

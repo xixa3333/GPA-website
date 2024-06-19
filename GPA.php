@@ -1,24 +1,20 @@
 <?php
 session_start();
-// 連接到資料庫
 include("db_connect.php");
+include("GPA_calculate.php");
 
 //判斷無登入帳號
 if (!isset($_SESSION["user"]) || $_SESSION["user"] == ""){
 	header("Location: GPA_login.php");
 	exit();
 }
-else{//有登入帳號判斷是否為管理員
-	$sql_str = "SELECT * FROM `account`";
-	$res = mysqli_query($conn, $sql_str);
-	
-	while ($row_array = mysqli_fetch_assoc($res)){
-		foreach ($row_array as $key => $item){
-			if($key=='user')$account=$item;
-			if($key=='manage')$manage=$item;
-		}
-		if($_SESSION["user"]==$account)break;
-	}
+
+//有登入帳號則判斷是否為管理員
+else{
+	$sql_str = "SELECT * FROM `account` WHERE `user`='".$_SESSION["user"]."';";
+	$res = @mysqli_query($conn, $sql_str);
+	$row_array = mysqli_fetch_assoc($res);
+	$manage = $row_array['manage'];
 }
 
 //判斷此網頁已閒置1小時
@@ -29,61 +25,6 @@ if (isset($_SESSION['expiretime']) && time() >= $_SESSION['expiretime']) {
     exit();
 }
 
-// 計算GPA的函數
-function calculateGPA($score, $GPA_sort) {
-	$GPA = 0;
-    if($GPA_sort=='NKUST'){
-		for ($j = 0; $j < 4; $j++) {
-			if ($score < (50 + $j * 10)) {
-				$GPA = $j;
-				break;
-			}
-		}
-		if ($score <= 100 && $score >= 80) $GPA = 4;
-	}
-	elseif($GPA_sort=='TW0'){
-		if ($score <= 59) $GPA = 0;
-		elseif ($score <= 62) $GPA = 0.7;
-		elseif ($score <= 66) $GPA = 1.0;
-		elseif ($score <= 69) $GPA = 1.3;
-		elseif ($score <= 72) $GPA = 1.7;
-		elseif ($score <= 76) $GPA = 2.0;
-		elseif ($score <= 79) $GPA = 2.3;
-		elseif ($score <= 82) $GPA = 2.7;
-		elseif ($score <= 86) $GPA = 3.0;
-		elseif ($score <= 89) $GPA =3.3;
-		elseif ($score <= 92) $GPA = 3.7;
-		elseif ($score <= 100) $GPA = 4.0;
-	}
-	elseif($GPA_sort=='TW3'){
-		if ($score <= 59) $GPA = 0;
-		elseif ($score <= 62) $GPA = 1.7;
-		elseif ($score <= 66) $GPA = 2.0;
-		elseif ($score <= 69) $GPA = 2.3;
-		elseif ($score <= 72) $GPA = 2.7;
-		elseif ($score <= 76) $GPA = 3.0;
-		elseif ($score <= 79) $GPA =3.3;
-		elseif ($score <= 84) $GPA = 3.7;
-		elseif ($score <= 89) $GPA = 4.0;
-		elseif ($score <= 100) $GPA = 4.3;
-	}
-    return $GPA;
-}
-
-// 更新total的函數
-function updateTotalTable($conn, $tableName, $GPA_total, $score_total, $credit_total, $Original_credits,$totalname) {
-    $sql_str2 = "SELECT * FROM $totalname WHERE `table_name`='$tableName'";
-    $res2 = mysqli_query($conn, $sql_str2);
-    if (mysqli_num_rows($res2) > 0) {//如果有此表則更新
-        $sql_str2 = "UPDATE $totalname
-                     SET `GPA_total`='$GPA_total', `score_total`='$score_total', `credit_total`='$credit_total', `Original_credits`='$Original_credits' 
-                     WHERE `table_name`='$tableName';";
-    } else {//如果無此表則插入
-        $sql_str2 = "INSERT INTO $totalname (`table_name`, `GPA_total`, `score_total`, `credit_total`, `Original_credits`) 
-                     VALUES ('$tableName', '$GPA_total', '$score_total', '$credit_total', '$Original_credits')";
-    }
-    @mysqli_query($conn, $sql_str2);
-}
 //如果沒有cookie，則預設三個排序的cookie
 $date = strtotime(date("Y-m-d 23:59:59"));
 if (!isset($_COOKIE ["account"])) {
@@ -91,24 +32,48 @@ if (!isset($_COOKIE ["account"])) {
 	setcookie("account[sort]",'Required_elective',$date);
 	setcookie("account[order]",'asc',$date);
 	setcookie("account[GPA_sort]",'NKUST',$date);
-	setcookie("account[user]",$_SESSION['account'],$date);
-	header ("Location:GPA.php?GPA_sort=NKUST");
+	if($manage==1){
+		$sql_str = "SELECT * FROM `account` WHERE `manage`='0' LIMIT 1;";
+		$res = mysqli_query($conn, $sql_str);
+		$row_array = mysqli_fetch_assoc($res);
+		setcookie("account[user]",$row_array['user'],$date);
+	}
+	else setcookie("account[user]",$_SESSION['account'],$date);
+	
+	header ("Location:GPA.php");
 	exit();
 }
 
+// 更新total的函數
+function updateTotalTable($conn, $tableName, $GPA_total, $score_total, $credit_total, $Original_credits,$GPA_sort,$totalname) {
+    $sql_str2 = "SELECT * FROM $totalname WHERE `table_name`='$tableName'";
+    $res2 = mysqli_query($conn, $sql_str2);
+    if (mysqli_num_rows($res2) > 0) {//如果有此表則更新
+        $sql_str2 = "UPDATE $totalname
+            SET `GPA_total`='$GPA_total', `score_total`='$score_total', `credit_total`='$credit_total', `Original_credits`='$Original_credits' ,`GPA_sort`='$GPA_sort'
+				WHERE `table_name`='$tableName';";
+    }
+	else {//如果無此表則插入
+        $sql_str2 = "INSERT INTO $totalname (`table_name`, `GPA_total`, `score_total`, `credit_total`, `Original_credits`,`GPA_sort`) 
+            VALUES ('$tableName', '$GPA_total', '$score_total', '$credit_total', '$Original_credits','$GPA_sort')";
+    }
+    @mysqli_query($conn, $sql_str2);
+}
+
 // 處理排序選擇的值
-if (isset($_GET['year'])) {
-    setcookie("account[year]",$_GET['year'],$date);
-	setcookie("account[sort]",$_GET['sort'],$date);
-	setcookie("account[order]",$_GET['order'],$date);
-	setcookie("account[GPA_sort]",$_GET['GPA_sort'],$date);
-    list($year, $sort, $order,$GPA_sort) = [$_GET['year'], $_GET['sort'], $_GET['order'],$_GET['GPA_sort']];
-	if(isset($_GET['user'])){
-		setcookie("account[user]",$_GET['user'],$date);
-		$user=$_GET['user'];
+if (isset($_POST['year'])) {
+    setcookie("account[year]",$_POST['year'],$date);
+	setcookie("account[sort]",$_POST['sort'],$date);
+	setcookie("account[order]",$_POST['order'],$date);
+	setcookie("account[GPA_sort]",$_POST['GPA_sort'],$date);
+    list($year, $sort, $order,$GPA_sort) = [$_POST['year'], $_POST['sort'], $_POST['order'],$_POST['GPA_sort']];
+	if(isset($_POST['user'])){
+		setcookie("account[user]",$_POST['user'],$date);
+		$user=$_POST['user'];
 	}
 	else $user=$_COOKIE['account']['user'];
-} else {
+} 
+else {
     list($year, $sort, $order,$GPA_sort) = [$_COOKIE['account']['year'], $_COOKIE['account']['sort'], $_COOKIE['account']['order'], $_COOKIE['account']['GPA_sort']];
 	$user=$_COOKIE['account']['user'];
 }
@@ -116,10 +81,22 @@ if (isset($_GET['year'])) {
 //命名
 $tableName = "table_" . $year.$user;
 $totalname='total'.$user;
+$manage_value=0;//管理員帳號數目
 
-//確定刪除帳號
+if ($manage==1) {//計算管理員帳號數
+	$sql_str = "SELECT * FROM `account` WHERE `manage` = '1';";
+	$res = mysqli_query($conn, $sql_str);
+	$manage_value=mysqli_num_rows($res);
+}
+
+//刪除帳號
 if (isset($_GET["enter"])) {
-	if($_GET["enter"] == 1)$user=$_SESSION["user"];
+	if($_GET["enter"] == 1 && $manage_value==1 && $manage==1){
+		echo '<script>alert("管理員帳號只剩一個，無法刪除");</script>';
+		echo '<script>location.href =  "GPA.php";</script>';
+		exit();
+	}
+	if($_GET["enter"] == 1)$user=$_SESSION["user"];//刪除本身的帳號
     $sql_str = "DELETE FROM `account` WHERE `user`='".$user."';";//清除帳號資料
     @mysqli_query($conn, $sql_str);
 	
@@ -137,6 +114,7 @@ if (isset($_GET["enter"])) {
 		session_destroy();
 		header("Location: GPA_login.php");
 	}
+	//管理員刪除學生帳號後的處理
 	else {
 		$sql_str = "SELECT * FROM `account`";
 		$res = mysqli_query($conn, $sql_str);
@@ -175,21 +153,21 @@ if (mysqli_num_rows($res) == 0) {
 $sql_str = "SELECT * FROM `$tableName`";
 $res = mysqli_query($conn, $sql_str);
 
-// 處理新增、刪除和更新資料的GET請求
-if (isset($_GET['number_of_subjects']) || isset($_GET['suject']) || isset($_GET['update'])||isset($_GET['GPA_sort'])) {
-    for ($i = 1; $i <= (isset($_GET['number_of_subjects']) ? $_GET['number_of_subjects'] : 0); $i++) {//新增科目資料
+// 處理新增、刪除和更新資料的POST請求
+if (isset($_POST['number_of_subjects']) || isset($_GET['suject']) || isset($_POST['update'])||isset($_POST['GPA_sort'])) {
+    for ($i = 1; $i <= (isset($_POST['number_of_subjects']) ? $_POST['number_of_subjects'] : 0); $i++) {//新增科目資料
         list($Required_elective, $course, $suject, $score, $credit) = [
-            $_GET['Required_elective'][$i],
-            $_GET['course'][$i],
-            $_GET['subjects'][$i],
-            $_GET['score'][$i],
-            $_GET['credit'][$i]
+            $_POST['Required_elective'][$i],
+            $_POST['course'][$i],
+            $_POST['subjects'][$i],
+            $_POST['score'][$i],
+            $_POST['credit'][$i]
         ];
 
         $GPA = calculateGPA($score, $GPA_sort);
 
         $sql_str = "INSERT INTO `$tableName` (`Required_elective`, `course`, `suject`, `score`, `credit`, `GPA`) 
-                    VALUES ('$Required_elective', '$course', '$suject', '$score', '$credit', '$GPA')";
+            VALUES ('$Required_elective', '$course', '$suject', '$score', '$credit', '$GPA')";
         @mysqli_query($conn, $sql_str);
     }
 
@@ -205,24 +183,24 @@ if (isset($_GET['number_of_subjects']) || isset($_GET['suject']) || isset($_GET[
 		}
     }
 
-    if (isset($_GET['update'])) {//更新資料
+    if (isset($_POST['update'])) {//更新資料
         list($Required_elective, $course, $suject, $score, $credit) = [
-            $_GET['Required_elective'],
-            $_GET['course'],
-            $_GET['subjects'],
-            $_GET['score'],
-            $_GET['credit']
+            $_POST['Required_elective'],
+            $_POST['course'],
+            $_POST['subjects'],
+            $_POST['score'],
+            $_POST['credit']
         ];
 
         $GPA = calculateGPA($score, $GPA_sort);
 
         $sql_str = "UPDATE `$tableName` 
-                    SET `Required_elective`='$Required_elective', `course`='$course', `score`='$score', `credit`='$credit', `GPA`='$GPA' 
-                    WHERE `suject`='$suject';";
+            SET `Required_elective`='$Required_elective', `course`='$course', `score`='$score', `credit`='$credit', `GPA`='$GPA' 
+				WHERE `suject`='$suject';";
         @mysqli_query($conn, $sql_str);
     }
 	
-	if(isset($_GET['GPA_sort'])){//更新GPA資料
+	if(isset($_POST['GPA_sort'])){//更新GPA資料
 		$sql_str = "SELECT * FROM `$tableName`";
 		$res = mysqli_query($conn, $sql_str);
 		while ($row_array = mysqli_fetch_assoc($res)) {
@@ -271,22 +249,23 @@ if (isset($_GET['number_of_subjects']) || isset($_GET['suject']) || isset($_GET[
 		$res2 = mysqli_query($conn, $sql_str2);
 		if (@mysqli_num_rows($res2) == 0) {//沒有表時創立新表
 			$createTableSQL = "CREATE TABLE `$totalname` (
-				`table_name` VARCHAR(50),
 				`GPA_total` FLOAT,
 				`score_total` FLOAT,
 				`credit_total` INT(5),
 				`Original_credits` INT(5),
+				`GPA_sort` VARCHAR(12),
+				`table_name` VARCHAR(50),
 				PRIMARY KEY (`table_name`)
 			)";
 
 			@mysqli_query($conn, $createTableSQL) or die("創建資料表錯誤");
 
-			$sql_str2 = "INSERT INTO `$totalname` (`table_name`, `GPA_total`, `score_total`, `credit_total`, `Original_credits`) 
-						 VALUES ('$tableName', '$GPA_total', '$score_total', '$credit_total', '$Original_credits')";
+			$sql_str2 = "INSERT INTO `$totalname` (`table_name`, `GPA_total`, `score_total`, `credit_total`, `Original_credits`,`GPA_sort`) 
+						 VALUES ('$tableName', '$GPA_total', '$score_total', '$credit_total', '$Original_credits','$GPA_sort')";
 
 			@mysqli_query($conn, $sql_str2);
 		} else {
-			updateTotalTable($conn, $tableName, $GPA_total, $score_total, $credit_total, $Original_credits,$totalname);
+			updateTotalTable($conn, $tableName, $GPA_total, $score_total, $credit_total, $Original_credits,$GPA_sort,$totalname);
 		}	
 	}
 }
@@ -326,7 +305,7 @@ else if (mysqli_num_rows($res) != 0) {//在此學期有資料並且不是在更�
 			width: 100%;
 			height: 100%;
 			background-color: rgba(0, 0, 0, 0.5);
-			z-index: 1;
+			z-index: 2;
 		}
 		#my_pic {
 			display: none;
@@ -337,7 +316,7 @@ else if (mysqli_num_rows($res) != 0) {//在此學期有資料並且不是在更�
 			background-color: white;
 			padding: 20px;
 			box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-			z-index: 2;
+			z-index: 3;
 			border-radius:5px;
 		}
 		#my_pic2 {
@@ -367,20 +346,13 @@ else if (mysqli_num_rows($res) != 0) {//在此學期有資料並且不是在更�
 <div id="my_pic2"></div>
 </div>
 
-<div class="container">
-<input type="button" onclick="openTableInNewWindowgrade()" value="換算公式"><p>
-<div class="spacer"></div>
-<input type="button" onclick="openTableInNewWindow('<?=$GPA_sort;?>')" value="GPA換算"><p>
-</div>
-
-<p>
 <hr>
 <p>
 
 
 
 <!-- 學年度和排序選擇表單 -->
-<form action="" method="get">
+<form action="" method="POST">
 <div class="container"">
     學年度：
     <select name="year" required onchange="this.form.submit()">
@@ -421,17 +393,14 @@ else if (mysqli_num_rows($res) != 0) {//在此學期有資料並且不是在更�
     學生帳號：
     <select name="user" required onchange="this.form.submit()">
 		<?
-		$sql_str = "SELECT * FROM `account`";
+		$sql_str = "SELECT * FROM `account` WHERE `manage` = '0';";
 		$res = mysqli_query($conn, $sql_str);
 		//抓取學生帳號
 		while ($row_array = mysqli_fetch_assoc($res)){
 			foreach ($row_array as $key => $item){
 				if($key=='user')$account=$item;
-				if($key=='manage')$manage2=$item;
 			}
-			if($manage2==0){
-				echo '<option value="' . $account . '" ' . ($user == $account ? 'selected' : '') . '>' . $account . '</option>';
-			}
+			echo '<option value="' . $account . '" ' . ($user == $account ? 'selected' : '') . '>' . $account . '</option>';
 		}
 		?>
     </select>
@@ -502,7 +471,7 @@ if (@mysqli_num_rows($res) != 0) {
 <p>
 
 <div class="container">
-<form action="GPA_credits.php" method="GET">
+<form action="GPA_credits.php" method="POST">
     <input type="submit" value="計算總學分">
 </form>
 <div class="spacer"></div>
@@ -514,7 +483,6 @@ if (@mysqli_num_rows($res) != 0) {
 </div>
 <div id="my_back"></div>
 <div id="my_pic"></div>
-<script src="Pop-up_window.js"></script>
 
 <script>
 	function deleteAccount(num) {
@@ -527,13 +495,18 @@ if (@mysqli_num_rows($res) != 0) {
 		three_line.onclick=function(){
 			if(flag==0){
 				let manageValue = <?php echo json_encode($manage); ?>;
-				let str1 = "<a href='GPA_login.php?logout=true'>登出</a><hr>";
-				let str2="<a href='GPA_forget.php'>修改密碼</a><hr>";
-				let str3='';
-				if(manageValue==1)str3 = "<a href='GPA_register.php'>註冊管理員帳號</a><hr>";
+				let GPA_sort = <?php echo json_encode($GPA_sort); ?>;
+				let str1='<a href="#" onclick="openTableInNewWindowgrade(); return false;">換算公式</a><hr>';
+				let str2 = `<a href="#" onclick='openTableInNewWindow(${JSON.stringify(GPA_sort)}); return false;'>GPA換算</a><hr>`;
+				let str3 = "<a href='GPA_forget.php'>修改密碼</a><hr>";
+				let str4 = "<a href='GPA_address.php'>修改電子郵件</a><hr>";
+				let str5="<a href='GPA_login.php?logout=true'>登出</a><hr>";
 				
-				let str4 = '<a href="#" onclick="deleteAccount(1); return false;">刪除登入帳號</a>';
-				document.getElementById('my_pic2').innerHTML =str1 + str2 + str3 +str4
+				let str6='';
+				if(manageValue==1)str6 = "<a href='GPA_register.php'>註冊管理員帳號</a><hr>";
+				
+				let str7 = '<a href="#" onclick="deleteAccount(1); return false;">刪除登入帳號</a>';
+				document.getElementById('my_pic2').innerHTML = str1 + str2 + str3 + str4 + str5 + str6 + str7;
 				document.getElementById('my_pic2').style.display = "block";
 				flag=1;
 			}
@@ -548,6 +521,8 @@ if (@mysqli_num_rows($res) != 0) {
 	let three_line = document.getElementById('three_line');
 	openlineInNewWindow(three_line,flag);
 </script>
+
+<script src="Pop-up_window.js"></script>
 
 </center>
 </body>
