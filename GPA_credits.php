@@ -48,10 +48,12 @@ function change_updown($picture){
     <link href="style.css" rel="stylesheet">
 </head>
 <body>
-    <p>
+<center>
+    <header>
     <h1 align="center">GPA與學期成績計算網站</h1><br>
-    <hr>
-    <center>
+    </header>
+	<br/>
+    
     <?php
     $sql_str = "SELECT * FROM `$totalname`";
     $res = mysqli_query($conn, $sql_str);
@@ -137,6 +139,11 @@ function change_updown($picture){
 			$score_picture=change_updown($score_picture);
 			$credit_picture=change_updown($credit_picture);
 			$GPA_picture=change_updown($GPA_picture);
+			for($i=0;$i<$data_value;$i++){
+				$score_picture[$i][0]="第".($i+1)."學期";
+				$credit_picture[$i][0]="第".($i+1)."學期";
+				$GPA_picture[$i][0]="第".($i+1)."學期";
+			}
 		}
 		
 		if($Original_credits_total==0)$Original_credits_total=1;//轉換為虛學分以免變nan

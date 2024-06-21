@@ -1,6 +1,7 @@
 @charset "UTF-8";
 body{
 	cursor: default;
+	margin:auto 0;
 }
 .back{
 	position: fixed;
@@ -8,6 +9,13 @@ body{
 	left: 0;
 	height: 100%;
 	width: 100%;
+}
+header{
+	background-color: rgb(230,230,230);
+	-webkit-filter:drop-shadow(0px 8px 5px rgb(200,200,200));
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
 form{
 	line-height:40%;
@@ -39,7 +47,7 @@ select:hover{
     width: 50px;
 }
 .spacer2 {
-    width: 75px;
+    width: 80px;
 }
 .container {
 	display: flex;

@@ -322,7 +322,7 @@ else if (mysqli_num_rows($res) != 0) {//在此學期有資料並且不是在更�
 		#my_pic2 {
 			display: none;
 			position: fixed;
-			top: 7%;
+			top: 50%;
 			left: 90%;
 			
 			background-color: white;
@@ -337,33 +337,30 @@ else if (mysqli_num_rows($res) != 0) {//在此學期有資料並且不是在更�
 <body>
 <center>
 
-<div class="container" style="justify-content: space-between;align-items: stretch;">
+<header class="container" style="justify-content: space-between;align-items: stretch;">
 <b style="font-size:17px;">歡迎：<?echo $_SESSION['user'];?></b>
 <div></div>
 <h1 class="center-text">GPA與學期成績計算網站</h1>
 <div class="spacer2"></div>
 <img src="https://cdn-icons-png.flaticon.com/512/3502/3502458.png" alt="" id="three_line" style="width:35px;height:35px;"></img>
 <div id="my_pic2"></div>
-</div>
+</header>
 
-<hr>
-<p>
-
-
+<br></br>
 
 <!-- 學年度和排序選擇表單 -->
 <form action="" method="POST">
 <div class="container"">
     學年度：
     <select name="year" required onchange="this.form.submit()">
-        <option value="112up" <?= $year == '112up' ? 'selected' : '' ?>>112上學期</option>
-		<option value="112down" <?= $year == '112down' ? 'selected' : '' ?>>112下學期</option>
-        <option value="113up" <?= $year == '113up' ? 'selected' : '' ?>>113上學期</option>
-		<option value="113down" <?= $year == '113down' ? 'selected' : '' ?>>113下學期</option>
-        <option value="114up" <?= $year == '114up' ? 'selected' : '' ?>>114上學期</option>
-		<option value="114down" <?= $year == '114down' ? 'selected' : '' ?>>114下學期</option>
-        <option value="115up" <?= $year == '115up' ? 'selected' : '' ?>>115上學期</option>
-		<option value="115down" <?= $year == '115down' ? 'selected' : '' ?>>115下學期</option>
+        <option value="112up" <?= $year == '112up' ? 'selected' : '' ?>>第1學期</option>
+		<option value="112down" <?= $year == '112down' ? 'selected' : '' ?>>第2學期</option>
+        <option value="113up" <?= $year == '113up' ? 'selected' : '' ?>>第3學期</option>
+		<option value="113down" <?= $year == '113down' ? 'selected' : '' ?>>第4學期</option>
+        <option value="114up" <?= $year == '114up' ? 'selected' : '' ?>>第5學期</option>
+		<option value="114down" <?= $year == '114down' ? 'selected' : '' ?>>第6學期</option>
+        <option value="115up" <?= $year == '115up' ? 'selected' : '' ?>>第7學期</option>
+		<option value="115down" <?= $year == '115down' ? 'selected' : '' ?>>第8學期</option>
     </select>
 	<div class="spacer"></div>
     排序：

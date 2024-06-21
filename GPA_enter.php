@@ -15,9 +15,10 @@ if (isset($_SESSION['expiretime']) && time() >= $_SESSION['expiretime']) {
 	<link href="style.css" rel="stylesheet">
 </head>
 <body>
-    <br>
+    <header>
     <h1 align="center">GPA與學期成績計算網站</h1><br>
-    <hr>
+    </header>
+	<br/>
     <center>
     <form action="GPA.php" method="POST">
         <input type="hidden" name="number_of_subjects" value="<?php echo $_POST['number_of_subjects']; ?>"/>
