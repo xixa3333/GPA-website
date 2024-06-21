@@ -5,7 +5,7 @@
 	$login=0;
 	$date = strtotime(date("Y-m-d 23:59:59"));
 	
-	// 登出或超時
+	//登出或超時
 	if (isset($_GET["logout"]) && $_GET["logout"] == "true") {
 		session_unset();
 		session_destroy();

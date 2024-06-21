@@ -9,7 +9,7 @@ if (!isset($_SESSION["user"]) || $_SESSION["user"] == ""){
 }
 
 $year=$_COOKIE['account']['year'];
-$tableName = "table_" . $year.$_SESSION["user"];
+$tableName = "table_" . $year.$_COOKIE["account"]["user"];
 $subjects=$_GET['suject'];
 
 //抓值
@@ -32,9 +32,10 @@ mysqli_close($conn);
 	<link href="style.css" rel="stylesheet">
 </head>
 <body>
-    <br>
+    <header>
     <h1 align="center">GPA與學期成績計算網站</h1><br>
-    <hr>
+    </header>
+	<br/>
     <center>
 	<br>
     <form action="GPA.php" method="POST">
