@@ -38,7 +38,10 @@ if (isset($_POST["account"]) && isset($_POST["password"]) && isset($_POST["confi
 	$res = @mysqli_query($conn, $sql_str);
 	
 	if(mysqli_num_rows($res)!=0){
-		echo '<script>alert("帳號重複");location.href = "GPA_register.php";</script>';
+		$row_array = mysqli_fetch_assoc($res);
+		$manage = $row_array['manage'];
+		if($manage<0)echo '<script>alert("請前往信箱進行驗證");location.href = "GPA_login.php";</script>';
+		else echo '<script>alert("帳號重複");location.href = "GPA_register.php";</script>';
 		exit();
 	}
 		

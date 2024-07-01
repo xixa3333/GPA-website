@@ -54,7 +54,7 @@ mysqli_close($conn);
 		
         科目：<? echo $subjects;?><input type="hidden" name="subjects" value="<? echo $subjects;?>"/>
 		<div class="spacer"></div>
-        成績：<input type="number" value=<? echo $score?> name="score" required style="width: 70px;" /> 
+        成績：<input type="number" <?= $score!=NULL ? "value=$score" : '' ;?> name="score" style="width: 70px;" /> 
 		<div class="spacer"></div>
         學分：<input type="number" value=<? echo $credit?> name="credit" required style="width: 70px;" />
 	</div>

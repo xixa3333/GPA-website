@@ -163,11 +163,16 @@ if (isset($_POST['number_of_subjects']) || isset($_GET['suject']) || isset($_POS
             $_POST['score'][$i],
             $_POST['credit'][$i]
         ];
-
-        $GPA = calculateGPA($score, $GPA_sort);
-
-        $sql_str = "INSERT INTO `$tableName` (`Required_elective`, `course`, `suject`, `score`, `credit`, `GPA`) 
+		if($score==NULL){
+			$GPA=0;
+			$sql_str = "INSERT INTO `$tableName` (`Required_elective`, `course`, `suject`, `score`, `credit`, `GPA`) 
+            VALUES ('$Required_elective', '$course', '$suject', NULL, '$credit', '$GPA')";
+		}
+		else{
+			$GPA = calculateGPA($score, $GPA_sort);
+			$sql_str = "INSERT INTO `$tableName` (`Required_elective`, `course`, `suject`, `score`, `credit`, `GPA`) 
             VALUES ('$Required_elective', '$course', '$suject', '$score', '$credit', '$GPA')";
+		}
         @mysqli_query($conn, $sql_str);
     }
 
@@ -191,13 +196,19 @@ if (isset($_POST['number_of_subjects']) || isset($_GET['suject']) || isset($_POS
             $_POST['score'],
             $_POST['credit']
         ];
-
-        $GPA = calculateGPA($score, $GPA_sort);
-
-        $sql_str = "UPDATE `$tableName` 
-            SET `Required_elective`='$Required_elective', `course`='$course', `score`='$score', `credit`='$credit', `GPA`='$GPA' 
-				WHERE `suject`='$suject';";
-        @mysqli_query($conn, $sql_str);
+		if($score==NULL){
+			$GPA=0;
+			$sql_str = "UPDATE `$tableName` 
+				SET `Required_elective`='$Required_elective', `course`='$course', `score`=NULL, `credit`='$credit', `GPA`='0' 
+					WHERE `suject`='$suject';";
+		}
+		else{
+			$GPA = calculateGPA($score, $GPA_sort);
+			$sql_str = "UPDATE `$tableName` 
+				SET `Required_elective`='$Required_elective', `course`='$course', `score`='$score', `credit`='$credit', `GPA`='$GPA' 
+					WHERE `suject`='$suject';";
+		}
+		@mysqli_query($conn, $sql_str);
     }
 	
 	if(isset($_POST['GPA_sort'])){//更新GPA資料
@@ -208,7 +219,8 @@ if (isset($_POST['number_of_subjects']) || isset($_GET['suject']) || isset($_POS
 				if ($key == 'score') $score = $item;
 				elseif ($key == 'suject') $suject = $item;
 			}
-			$GPA = calculateGPA($score, $GPA_sort);
+			if($score==NULL)$GPA=0;
+			else $GPA = calculateGPA($score, $GPA_sort);
 			$sql_str2 = "UPDATE `$tableName` SET `GPA`='$GPA' WHERE `suject`='$suject';";
 			mysqli_query($conn, $sql_str2);
 		}
@@ -232,11 +244,14 @@ if (isset($_POST['number_of_subjects']) || isset($_GET['suject']) || isset($_POS
 				elseif ($key == 'GPA') $GPA = $item;
 				elseif ($key == 'credit') $credit = $item;
 			}
-			$Original_credits += $credit;
-			$GPA_total += ($GPA * $credit);
-			$score_total += ($score * $credit);
-			if ($score < 60) $credit = 0;
-			$credit_total += $credit;
+			if($score!=NULL){
+				$Original_credits += $credit;
+				$score_total += ($score * $credit);
+				if ($score < 60) $credit = 0;
+				$credit_total += $credit;
+				$GPA_total += ($GPA * $credit);
+			}
+			
 		}
 		if($Original_credits==0)$Original_credits=1;
 		@$GPA_total /= $Original_credits;
@@ -257,15 +272,18 @@ if (isset($_POST['number_of_subjects']) || isset($_GET['suject']) || isset($_POS
 				`table_name` VARCHAR(50),
 				PRIMARY KEY (`table_name`)
 			)";
-
 			@mysqli_query($conn, $createTableSQL) or die("創建資料表錯誤");
-
-			$sql_str2 = "INSERT INTO `$totalname` (`table_name`, `GPA_total`, `score_total`, `credit_total`, `Original_credits`,`GPA_sort`) 
-						 VALUES ('$tableName', '$GPA_total', '$score_total', '$credit_total', '$Original_credits','$GPA_sort')";
-
-			@mysqli_query($conn, $sql_str2);
+			if($score_total!=0 || $Original_credits!=1){
+				$sql_str2 = "INSERT INTO `$totalname` (`table_name`, `GPA_total`, `score_total`, `credit_total`, `Original_credits`,`GPA_sort`) 
+							 VALUES ('$tableName', '$GPA_total', '$score_total', '$credit_total', '$Original_credits','$GPA_sort')";
+				@mysqli_query($conn, $sql_str2);
+			}
 		} else {
-			updateTotalTable($conn, $tableName, $GPA_total, $score_total, $credit_total, $Original_credits,$GPA_sort,$totalname);
+			if($score_total!=0 || $Original_credits!=1)updateTotalTable($conn, $tableName, $GPA_total, $score_total, $credit_total, $Original_credits,$GPA_sort,$totalname);
+			else {
+				$sql_str = "DELETE FROM $totalname WHERE `table_name`='$tableName';";
+				mysqli_query($conn, $sql_str);
+			}
 		}	
 	}
 }
