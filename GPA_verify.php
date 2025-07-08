@@ -1,4 +1,4 @@
-<?
+<?php
 	include("db_connect.php");
 	
 	$sql_str = "SELECT * FROM `account` WHERE `token`='".$_GET['token']."';";

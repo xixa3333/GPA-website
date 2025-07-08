@@ -1,4 +1,4 @@
-<?
+<?php
 session_start();
 if (isset($_SESSION['expiretime']) && time() >= $_SESSION['expiretime']) {
     session_unset();

@@ -1,4 +1,4 @@
-<?
+<?php
 include("db_connect.php");
 session_start();
 
@@ -20,7 +20,7 @@ if (!(!isset($_SESSION["user"]) || $_SESSION["user"] == "")){//有登入時判�
 if (isset($_POST["account"]) && isset($_POST["password"]) && isset($_POST["confirm"])) {
 	
 	$account=preg_replace('/\s/', '', trim($_POST["account"]));
-	$account = mysqli_real_escape_string($conn, $_POST['account']);
+	$account = mysqli_real_escape_string($conn, $account);
 	$password=preg_replace('/\s/', '', trim($_POST["password"]));
 	$confirm=preg_replace('/\s/', '', trim($_POST["confirm"]));
 	
@@ -54,7 +54,7 @@ if (isset($_POST["account"]) && isset($_POST["password"]) && isset($_POST["confi
 		exit();
 	}
 	
-	sendPasswordResetEmail($_POST['address'], "GPA與學期成績網站驗證", "歡迎使用GPA與學期成績網站，請驗證帳號:http://203.64.95.42/C112151111/GPA_verify.php?token=$token ", '<script>alert("電子郵件輸入錯誤，請重新輸入");location.href = "GPA_register.php";</script>');
+	sendPasswordResetEmail($_POST['address'], "GPA與學期成績網站驗證", "歡迎使用GPA與學期成績網站，請驗證帳號:http://127.0.0.1/GPA-website/GPA_verify.php?token=$token ", '<script>alert("電子郵件輸入錯誤，請重新輸入");location.href = "GPA_register.php";</script>');
 	
 	$time=date("Y-m-d H:i:s");
 	$password=password_hash($password, PASSWORD_DEFAULT);
@@ -108,11 +108,11 @@ mysqli_close($conn);
 		<p>
 		<input type="submit" value="註冊"/>
 		<br></br>
-		<?if($manage==0){?>
+		<?php if($manage==0){?>
 		<input type="button" onclick="javascript:location.href='GPA_login.php'" value="回到主畫面">
-		<?}if($manage==1){?>
+		<?php }if($manage==1){?>
 		<input type="button" onclick="javascript:location.href='GPA.php'" value="回到主畫面">
-		<?}?>
+		<?php }?>
 	</form>
 	</div>
 	</div>

@@ -244,14 +244,16 @@ if (isset($_POST['number_of_subjects']) || isset($_GET['suject']) || isset($_POS
 				elseif ($key == 'GPA') $GPA = $item;
 				elseif ($key == 'credit') $credit = $item;
 			}
-			if($score!=NULL){
+			if(is_string($score) && !is_numeric($score)){
+				$credit_total += $credit;
+			}
+			elseif($score!=NULL){
 				$Original_credits += $credit;
 				$score_total += ($score * $credit);
 				if ($score < 60) $credit = 0;
 				$credit_total += $credit;
 				$GPA_total += ($GPA * $credit);
 			}
-			
 		}
 		if($Original_credits==0)$Original_credits=1;
 		@$GPA_total /= $Original_credits;
@@ -293,9 +295,9 @@ else if (mysqli_num_rows($res) != 0) {//在此學期有資料並且不是在更�
     $sql_str = "SELECT * FROM `$totalname` WHERE `table_name`='$tableName'";
     $res = mysqli_query($conn, $sql_str);
     $row_array = mysqli_fetch_assoc($res);
-    $GPA_total = $row_array['GPA_total'];
-    $score_total = $row_array['score_total'];
-    $credit_total = $row_array['credit_total'];
+    $GPA_total = $row_array['GPA_total'] ?? 0;
+	$score_total = $row_array['score_total'] ?? 0;
+	$credit_total = $row_array['credit_total'] ?? 0;
 	
 	$GPA_total = number_format($GPA_total, 2);
 	$score_total = number_format($score_total, 2);
@@ -356,7 +358,7 @@ else if (mysqli_num_rows($res) != 0) {//在此學期有資料並且不是在更�
 <center>
 
 <header class="container" style="justify-content: space-between;align-items: stretch;">
-<b style="font-size:17px;">歡迎：<?echo $_SESSION['user'];?></b>
+<b style="font-size:17px;">歡迎：<?php echo $_SESSION['user'];?></b>
 <div></div>
 <h1 class="center-text">GPA與學期成績計算網站</h1>
 <div class="spacer2"></div>
@@ -403,11 +405,11 @@ else if (mysqli_num_rows($res) != 0) {//在此學期有資料並且不是在更�
         <option value="TW0" <?= $GPA_sort == 'TW0' ? 'selected' : '' ?>>台灣GPA4.0</option>
 		<option value="TW3" <?= $GPA_sort == 'TW3' ? 'selected' : '' ?>>台灣GPA4.3</option>
     </select>
-	<?if($manage==1){//判斷為管理員帳號?>
+	<?php if($manage==1){//判斷為管理員帳號?>
 	<div class="spacer"></div>
     學生帳號：
     <select name="user" required onchange="this.form.submit()">
-		<?
+		<?php
 		$sql_str = "SELECT * FROM `account` WHERE `manage` = '0';";
 		$res = mysqli_query($conn, $sql_str);
 		//抓取學生帳號
@@ -419,7 +421,7 @@ else if (mysqli_num_rows($res) != 0) {//在此學期有資料並且不是在更�
 		}
 		?>
     </select>
-	<?}?>
+	<?php }?>
 </div>
 </form>
 
@@ -491,10 +493,10 @@ if (@mysqli_num_rows($res) != 0) {
 </form>
 <div class="spacer"></div>
 <input type="button" onclick="openinputInNewWindow()" value="新增資料">
-<?if($manage==1){?>
+<?php if($manage==1){?>
 <div class="spacer"></div>
 <input type="button" onclick="deleteAccount(2)" value="刪除此帳號">
-<?}?>
+<?php }?>
 </div>
 <div id="my_back"></div>
 <div id="my_pic"></div>
