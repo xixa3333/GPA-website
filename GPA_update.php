@@ -1,4 +1,4 @@
-<?
+<?php
 session_start();
 include("db_connect.php");
 
@@ -42,21 +42,21 @@ mysqli_close($conn);
 		<input type="hidden" name="update" value="<?php echo 1 ?>"/>
 	<div class="container">
 		必選修：<select name="Required_elective" required style="width: 100px;">
-		<option <? if($Required_elective == '必修') echo 'selected'; ?> >必修</option>
-		<option <? if($Required_elective == '選修') echo 'selected'; ?> >選修</option>
+		<option <?php if($Required_elective == '必修') echo 'selected'; ?> >必修</option>
+		<option <?php if($Required_elective == '選修') echo 'selected'; ?> >選修</option>
 		</select> 
 		<div class="spacer"></div>
         課程分類：<select name="course" required style="width: 100px;">
-		<option <? if($course == '專業') echo 'selected'; ?> >專業</option>
-		<option <? if($course == '通識') echo 'selected'; ?> >通識</option>
+		<option <?php if($course == '專業') echo 'selected'; ?> >專業</option>
+		<option <?php if($course == '通識') echo 'selected'; ?> >通識</option>
 		</select> 
 		<div class="spacer"></div>
 		
-        科目：<? echo $subjects;?><input type="hidden" name="subjects" value="<? echo $subjects;?>"/>
+        科目：<?php echo $subjects;?><input type="hidden" name="subjects" value="<?php echo $subjects;?>"/>
 		<div class="spacer"></div>
         成績：<input type="number" <?= $score!=NULL ? "value=$score" : '' ;?> name="score" style="width: 70px;" /> 
 		<div class="spacer"></div>
-        學分：<input type="number" value=<? echo $credit?> name="credit" required style="width: 70px;" />
+        學分：<input type="number" value=<?php echo $credit?> name="credit" required style="width: 70px;" />
 	</div>
         <p>
 		<div class="container">

@@ -1,4 +1,4 @@
-<?
+<?php
 // 計算GPA的函數
 function calculateGPA($score, $GPA_sort) {
 	$GPA = 0;

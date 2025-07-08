@@ -1,9 +1,10 @@
-<?
+<?php
 include("db_connect.php");
 session_start();
 
 if(isset($_GET['token'])){
 		$sql_str = "SELECT * FROM `account` WHERE `token` = '".$_GET['token']."';";
+		
 		$res = mysqli_query($conn, $sql_str);
 		if(mysqli_num_rows($res)==0 || !$res){
 			echo '<script>location.href = "GPA_login.php";</script>';
@@ -99,9 +100,9 @@ if(isset($_GET['token'])){
 	
 	<form method="POST">
 	<p></p>
-		<?if((!isset($_SESSION["user"]) || $_SESSION["user"] == "") && isset($_GET['token'])){?>
+		<?php if((!isset($_SESSION["user"]) || $_SESSION["user"] == "") && isset($_GET['token'])){?>
 		<input type="hidden" name="token" value="<?php echo $_GET['token']; ?>"/>
-		<?}?>
+		<?php }?>
 		
 		<div class="box">
 			<input type="password" id="psw" placeholder="修改密碼" name="password" required size="20"/>
@@ -115,12 +116,12 @@ if(isset($_GET['token'])){
 		<p/>
 		<input type="submit" value="修改密碼"/>
 		<br></br>
-		<?if (!isset($_SESSION["user"]) || $_SESSION["user"] == ""){?>
+		<?php if (!isset($_SESSION["user"]) || $_SESSION["user"] == ""){?>
 			<input type="button" onclick="javascript:location.href='GPA_login.php'" value="回到主畫面"/>
-		<?}
+		<?php }
 		if (isset($_SESSION["user"])){?>
 			<input type="button" onclick="javascript:location.href='GPA.php'" value="回到主畫面"/>
-		<?}?>
+		<?php }?>
 		
 		
 	</form>

@@ -1,4 +1,4 @@
-<?
+<?php
 include("db_connect.php");
 session_start();
 
@@ -35,7 +35,7 @@ if (isset($_POST['account'])) {
 	$sql_str = "UPDATE `account` SET `Revise_password`='1' WHERE `user`='$account';";
 	mysqli_query($conn, $sql_str);
 	
-	sendPasswordResetEmail($address, "GPA與學期成績網站修改密碼", "歡迎使用GPA與學期成績網站，請至以下網址修改密碼:http://203.64.95.42/C112151111/GPA_forget.php?token=$token ", '<script>alert("電子郵件輸入錯誤，請重新輸入");location.href = "GPA_account.php";</script>');
+	sendPasswordResetEmail($address, "GPA與學期成績網站修改密碼", "歡迎使用GPA與學期成績網站，請至以下網址修改密碼:http://127.0.0.1/GPA-website/GPA_forget.php?token=$token ", '<script>alert("電子郵件輸入錯誤，請重新輸入");location.href = "GPA_account.php";</script>');
 	
 	echo '<script>alert("驗證成功，請前往你的郵箱修改密碼");location.href = "GPA_login.php";</script>';
 }

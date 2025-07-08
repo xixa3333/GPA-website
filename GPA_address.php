@@ -1,4 +1,4 @@
-<?
+<?php
 include("db_connect.php");
 session_start();
 
@@ -67,7 +67,7 @@ if (isset($_POST['address'])) {
 	<p></p>
 		原電子郵件：
 		<p/>
-		<b><?echo "$address";?></b>
+		<b><?php echo "$address";?></b>
 		<p/>
 		<input type="text" placeholder="請輸入你新的電子郵件" name="address" required />
 		<p/>
