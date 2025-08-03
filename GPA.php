@@ -3,6 +3,10 @@ session_start();
 include("db_connect.php");
 include("GPA_calculate.php");
 
+// --- 新增: 檢查並確保 $user 安全清理 ---
+// 這個變數會在下面的邏輯中被賦值
+$user = null; // 初始化，避免未定義警告
+
 //判斷無登入帳號
 if (!isset($_SESSION["user"]) || $_SESSION["user"] == ""){
 	header("Location: GPA_login.php");
@@ -60,8 +64,13 @@ function updateTotalTable($conn, $tableName, $GPA_total, $score_total, $credit_t
     @mysqli_query($conn, $sql_str2);
 }
 
-// 處理排序選擇的值
-if (isset($_POST['year'])) {
+if (isset($_POST['year']) && isset($_POST['number_of_subjects'])) {
+    setcookie("account[year]",$_POST['year'],$date);
+	$year=$_POST['year'];
+	list($year, $sort, $order,$GPA_sort) = [$_POST['year'], $_POST['sort'], $_POST['order'], $_POST['GPA_sort']];
+	$user=$_POST['user'];
+}
+elseif (isset($_POST['year']) && isset($_POST['sort'])) {// 處理排序選擇的值
     setcookie("account[year]",$_POST['year'],$date);
 	setcookie("account[sort]",$_POST['sort'],$date);
 	setcookie("account[order]",$_POST['order'],$date);
@@ -72,7 +81,7 @@ if (isset($_POST['year'])) {
 		$user=$_POST['user'];
 	}
 	else $user=$_COOKIE['account']['user'];
-} 
+ }
 else {
     list($year, $sort, $order,$GPA_sort) = [$_COOKIE['account']['year'], $_COOKIE['account']['sort'], $_COOKIE['account']['order'], $_COOKIE['account']['GPA_sort']];
 	$user=$_COOKIE['account']['user'];
@@ -141,12 +150,22 @@ if (mysqli_num_rows($res) == 0) {
         `Required_elective` ENUM('必修', '選修') NOT NULL DEFAULT '必修',
         `course` ENUM('專業', '通識') NOT NULL DEFAULT '專業',
         `suject` VARCHAR(30) NOT NULL,
-        `score` INT(4),
+        `score` VARCHAR(4) DEFAULT NULL,
         `credit` INT(2),
         `GPA` FLOAT,
         PRIMARY KEY (`suject`)
     )";
     @mysqli_query($conn, $createTableSQL) or die("創建資料表錯誤");
+} 
+else {
+    // 如果表已存在，且是來自 PDF 上傳的請求 (number_of_subjects 存在)
+    // 則清空該學期的所有科目數據，準備重新插入
+    if (isset($_POST['number_of_subjects'])) {
+        $truncate_sql = "TRUNCATE TABLE `" . $escaped_tableName . "`";
+        if (!mysqli_query($conn, $truncate_sql)) {
+            error_log("清空科目資料表失敗: " . mysqli_error($conn));
+        }
+    }
 }
 
 // 查詢表的資料
@@ -163,7 +182,7 @@ if (isset($_POST['number_of_subjects']) || isset($_GET['suject']) || isset($_POS
             $_POST['score'][$i],
             $_POST['credit'][$i]
         ];
-		if($score==NULL){
+		if($score==NULL||$score=="合格"){
 			$GPA=0;
 			$sql_str = "INSERT INTO `$tableName` (`Required_elective`, `course`, `suject`, `score`, `credit`, `GPA`) 
             VALUES ('$Required_elective', '$course', '$suject', NULL, '$credit', '$GPA')";
@@ -493,6 +512,8 @@ if (@mysqli_num_rows($res) != 0) {
 </form>
 <div class="spacer"></div>
 <input type="button" onclick="openinputInNewWindow()" value="新增資料">
+<div class="spacer"></div>
+<input type="button" onclick="location.href='gpa_upload_form.php'" value="上傳檔案">
 <?php if($manage==1){?>
 <div class="spacer"></div>
 <input type="button" onclick="deleteAccount(2)" value="刪除此帳號">
