@@ -33,7 +33,7 @@ if (isset($_SESSION['expiretime']) && time() >= $_SESSION['expiretime']) {
 			echo '<div class="spacer"></div>';
             echo '科目：<input type="text" name="subjects['.$i.']" required style="width: 200px;" />  ';
 			echo '<div class="spacer"></div>';
-            echo '成績：<input type="number" name="score['.$i.']" style="width: 70px;" />  ';
+            echo '成績：<input type="text" name="score['.$i.']" style="width: 70px;" />  ';
 			echo '<div class="spacer"></div>';
             echo '學分：<input type="number" name="credit['.$i.']" required style="width: 70px;" />';
 			echo '</div>';
