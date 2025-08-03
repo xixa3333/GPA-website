@@ -55,5 +55,57 @@
     - 忘記密碼的修改密碼傳一封信只能修改一次
     - 閒置一小時後自動退出
 
-**網站畫面**
-![image](https://github.com/xixa3333/GPA-website/assets/128284090/5d8755ca-841f-4fc5-bba8-6eaed5a2c353)
+## 網站開啟方式
+
+要運行這個網站，您需要一個 **Web 伺服器環境**，例如 XAMPP (推薦，因為它整合了 Apache 和 MySQL/MariaDB) 或 Laragon。
+
+### 步驟 1：下載並安裝 XAMPP (或其他 Web 伺服器)
+
+如果您尚未安裝 XAMPP，請前往 [XAMPP 官方網站](https://www.apachefriends.org/index.html) 下載並安裝。安裝過程請選擇預設選項，除非您有特定需求。
+
+### 步驟 2：複製專案檔案到伺服器目錄
+
+1.  **下載您的專案程式碼：**
+    從您的 GitHub 儲存庫下載整個專案為 ZIP 檔案，然後解壓縮。
+
+2.  **將專案放置到 XAMPP 的 Web 伺服器根目錄：**
+    將解壓縮後的 `GPA-website` 資料夾，複製到 XAMPP 的 `htdocs` 目錄下。
+    通常路徑會是：`C:\xampp\htdocs\GPA-website\`
+
+### 步驟 3：啟動 XAMPP 服務
+
+1.  開啟 **XAMPP 控制面板**。
+
+2.  點擊 **Apache** 模組旁邊的 `Start` 按鈕，啟動 Apache Web 伺服器。
+
+3.  點擊 **MySQL** 模組旁邊的 `Start` 按鈕，啟動 MySQL 資料庫服務 (您的程式碼使用 MariaDB，它與 MySQL 相容)。
+
+      * **注意：** 如果 MySQL 無法啟動，可能是 **3306 埠號被佔用**。請檢查是否有其他程式 (如 Skype) 佔用此埠號，並將其關閉。您也可以在 XAMPP 的 `my.ini` 檔案中修改 MySQL 的埠號，但同時需要更新您程式碼中資料庫連接的埠號。
+
+### 步驟 4：設定資料庫並匯入 SQL 檔案
+
+1.  **進入 phpMyAdmin：**
+    在 XAMPP 控制面板中，點擊 MySQL 模組旁邊的 **`Admin`** 按鈕。這會開啟您的瀏覽器並進入 phpMyAdmin 介面。
+
+2.  **建立新資料庫：**
+    在 phpMyAdmin 左側的導航欄中，點擊 **「新增」** 或在頂部點擊 **「資料庫」** 選項卡。
+
+      * 輸入您的資料庫名稱，根據您程式碼中的使用，建議命名為 `c112151111`。
+      * 字元集 (Collation) 可以選擇 `utf8mb4_unicode_ci` (推薦)。
+      * 點擊「建立」。
+
+3.  **匯入您的 SQL 檔案：**
+
+      * 選擇您剛建立的 `c112151111` 資料庫。
+      * 在頂部選單點擊 **「匯入」** 選項卡。
+      * 點擊「選擇檔案」，然後瀏覽到您的專案資料夾中找到 `SQL` 檔案 (例如 `your_database_dump.sql` 或類似名稱)。
+      * 點擊右下角的「執行」按鈕。這會將資料表結構和預設資料匯入到您的資料庫中。
+
+### 步驟 5：透過瀏覽器開啟網站
+
+1.  開啟您的 Web 瀏覽器 (例如 Chrome, Firefox)。
+2.  在網址列輸入：http://localhost/GPA-website/GPA_login.php
+
+現在，您應該能夠看到 GPA 計算網站的登入頁面了！
+
+-----
