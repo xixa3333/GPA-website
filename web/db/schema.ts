@@ -6,6 +6,8 @@ export const courses = sqliteTable("courses", {
   ownerEmail: text("owner_email").notNull(),
   semester: text("semester").notNull(),
   name: text("name").notNull(),
+  requirement: text("requirement").notNull().default("必修"),
+  category: text("category").notNull().default("專業"),
   credits: real("credits").notNull(),
   grade: text("grade").notNull(),
   gradePoints: real("grade_points").notNull(),
