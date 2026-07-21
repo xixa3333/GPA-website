@@ -1,0 +1,7 @@
+/app/vendor/
+/app/uploads/*
+!/app/uploads/.gitkeep
+/.env
+*.log
+__pycache__/
+*.py[cod]
