@@ -2,6 +2,14 @@
 
 這是一套以 PHP、MySQL 與 Python 製作的學業成績管理網站，可記錄各學期課程、計算 GPA、查看學分統計，並從特定格式的成績單 PDF 匯入資料。
 
+## 公開網站
+
+新版 **GPA Compass** 已公開上線：
+
+**[立即開啟 GPA Compass](https://gpa-compass-tw.gpt-sub-team.chatgpt.site)**
+
+公開版使用持久化雲端資料庫保存課程、學分與 GPA。首頁可公開瀏覽；個人成績儀表板必須使用 ChatGPT 登入，伺服器會依登入帳號隔離每位使用者的資料。公開版原始碼位於 `web/`，原有 XAMPP/PHP 版本仍保留於 `app/`。
+
 ## 主要功能
 
 - 註冊、登入、忘記密碼與帳號管理
