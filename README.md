@@ -1,94 +1,66 @@
-# GPA 成績管理系統
+# GPA Compass 成績與學分管理
 
-這是一套以 PHP、MySQL 與 Python 製作的學業成績管理網站，可記錄各學期課程、計算 GPA、查看學分統計，並從特定格式的成績單 PDF 匯入資料。
+GPA Compass 是給大學生使用的免費成績管理工具，可記錄各學期分數、自動換算 GPA、觀察成績趨勢，並用圓餅圖追蹤畢業學分目標。
 
-## 公開網站
+## 立即使用
 
-新版 **GPA Compass** 已公開上線：
+**[開啟 GPA Compass 公開網站](https://gpa-compass-tw.gpt-sub-team.chatgpt.site)**
 
-**[立即開啟 GPA Compass](https://gpa-compass-tw.gpt-sub-team.chatgpt.site)**
-
-公開版使用持久化雲端資料庫保存課程、學分與 GPA。首頁可公開瀏覽；個人成績儀表板必須使用 ChatGPT 登入，伺服器會依登入帳號隔離每位使用者的資料。公開版原始碼位於 `web/`，原有 XAMPP/PHP 版本仍保留於 `app/`。
+使用 ChatGPT 帳號登入後即可新增課程。課程、學分目標及 GPA 制度都會依登入帳號分開保存，不會與其他使用者共用。
 
 ## 主要功能
 
-- 註冊、登入、忘記密碼與帳號管理
-- 新增、修改與刪除課程成績
-- 依學期查看 GPA、學分與統計圖表
-- 依課程類型、必選修等條件整理資料
-- 上傳 PDF 成績單並自動匯入成績
+- 以 0–100 分輸入成績，自動換算 GPA
+- 支援高科大 4.0、臺灣常用 4.0、臺灣常用 4.3 制度
+- 顯示學期 GPA、平均分數與學分趨勢
+- 類別包含系必修、系選修、通識、共同必修、自由選修及自訂內容
+- 設定各領域與總畢業學分目標，以中央顯示學分數的圓餅圖追蹤
+- 使用雲端資料庫持久保存資料，並以登入帳號隔離個人紀錄
 
-## 執行需求
+## 使用方式
 
-- XAMPP（Apache、PHP、MySQL/MariaDB）
-- Composer
-- Python 3
-- Python 套件 `pdfplumber`
+1. 開啟公開網站並登入。
+2. 在「新增課程」輸入學期、名稱、類別、學分與分數。
+3. 在個人設定選擇 GPA 制度並設定各類學分目標。
+4. 從趨勢圖與學分圓餅圖查看學習進度。
 
-## 安裝方式
+## 隱私與安全
 
-1. 下載或複製此專案至 XAMPP 的網站目錄，例如：
+- 每筆課程與個人化設定都以登入帳號作為資料存取邊界。
+- 更新、刪除與查詢均同時驗證資料所屬帳號。
+- 專案不保存 Gmail App Password、GitHub Token 或其他私密憑證。
+- 請勿將 `.env`、郵件密碼或服務權杖提交到 GitHub。
 
-   ```text
-   C:\xampp\htdocs\GPA-website
-   ```
+## 開發者說明
 
-2. 在專案的 `app` 目錄安裝 PHP 相依套件：
-
-   ```powershell
-   cd C:\xampp\htdocs\GPA-website\app
-   composer install
-   ```
-
-3. 安裝 PDF 解析套件：
-
-   ```powershell
-   py -m pip install pdfplumber
-   ```
-
-4. 啟動 XAMPP 的 Apache 與 MySQL。
-
-5. 開啟 phpMyAdmin，建立 `C112151111` 資料庫，並匯入 [`database/init.sql`](database/init.sql)。建議資料庫使用 `utf8mb4` 編碼。
-
-6. 瀏覽 [http://localhost/GPA-website/](http://localhost/GPA-website/)，系統會自動進入登入頁。
-
-## 設定
-
-未設定環境變數時，系統預設連線至本機 MySQL、使用 `root` 帳號與空白密碼。正式環境請在 Apache/PHP 執行環境中設定下列變數：
-
-| 環境變數 | 用途 | 預設值 |
-| --- | --- | --- |
-| `GPA_DB_HOST` | 資料庫主機 | `127.0.0.1` |
-| `GPA_DB_USER` | 資料庫帳號 | `root` |
-| `GPA_DB_PASSWORD` | 資料庫密碼 | 空白 |
-| `GPA_DB_NAME` | 資料庫名稱 | `C112151111` |
-| `GPA_PYTHON` | Python 執行檔路徑 | 自動偵測，找不到時使用系統 `PATH` |
-| `GPA_SMTP_HOST` | SMTP 主機 | `smtp.gmail.com` |
-| `GPA_SMTP_PORT` | SMTP 連接埠 | `587` |
-| `GPA_SMTP_USERNAME` | 寄件帳號 | 無 |
-| `GPA_SMTP_PASSWORD` | SMTP App Password | 無 |
-| `GPA_SMTP_FROM` | 寄件地址 | 同寄件帳號 |
-
-若未設定 SMTP 帳密，網站仍可執行，但寄送驗證信與重設密碼郵件的功能無法使用。請勿把任何密碼、App Password 或個人成績單提交到 GitHub。
-
-## 專案結構
+主要公開網站位於 `web/`，採前後端 API 分離與領域／資料存取分層：
 
 ```text
-GPA-website/
-├─ index.php          # 網站入口
-├─ README.md          # 使用說明
-├─ app/               # PHP、前端資源與 PDF 解析程式
-│  └─ uploads/        # 暫存上傳檔案（不提交 Git）
-└─ database/
-   └─ init.sql        # 初始資料庫結構與資料
+web/
+├─ app/                 # React 頁面與 API 路由
+├─ lib/domain.ts        # 輸入驗證與核心規則
+├─ lib/gpa.ts           # GPA 換算策略
+├─ lib/repositories.ts  # D1 資料存取層
+├─ db/                  # Drizzle 資料表定義
+└─ tests/               # 單元、整合、邊界及資安測試
 ```
 
-`app/vendor/` 由 Composer 產生，因此不收錄於版本控制。GitHub 也不收錄使用者上傳檔案與測試成績單。
+本機開發需要 Node.js 22.13 以上：
 
-## PDF 匯入提醒
+```powershell
+cd web
+npm install
+npm run dev
+```
 
-PDF 解析器是依目前支援的成績單版面擷取資料；若學校更改欄位名稱或排版，可能需要調整 `app/PDF.py`。上傳前請確認 PDF 不含不必要的個人敏感資訊。
+完整驗證：
 
-## 授權與發行
+```powershell
+npm run test:all
+```
 
-目前專案尚未附授權條款，也沒有獨立安裝程式。一般使用者可直接從 GitHub 下載原始碼並依本頁安裝；等到版本、資料庫升級流程與授權條款穩定後，再建立 GitHub Release 會更合適。
+舊版 XAMPP/PHP 程式保留於 `app/`，資料庫初始化檔位於 `database/init.sql`。根目錄只保留入口、README 與專案必要設定；網站實作集中於各自目錄。
+
+## GitHub Releases
+
+目前不需要上傳 Release 附件：網站由原始碼自動建置部署，依賴套件可由 lockfile 重現。只有在日後提供離線安裝包、桌面版或正式版本下載檔時，才適合使用 GitHub Releases。
