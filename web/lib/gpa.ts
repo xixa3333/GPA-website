@@ -1,10 +1,15 @@
-export type GpaMethod = "NKUST" | "TW0" | "TW3";
+export const GPA_METHODS = ["NKUST", "TW0", "TW3"] as const;
+export type GpaMethod = (typeof GPA_METHODS)[number];
 
 export const gpaMethodLabels: Record<GpaMethod, string> = {
-  NKUST: "高科 GPA 4.0",
-  TW0: "台灣 GPA 4.0",
-  TW3: "台灣 GPA 4.3",
+  NKUST: "高科大 GPA 4.0",
+  TW0: "臺灣常用 GPA 4.0",
+  TW3: "臺灣常用 GPA 4.3",
 };
+
+export function isGpaMethod(value: unknown): value is GpaMethod {
+  return typeof value === "string" && GPA_METHODS.includes(value as GpaMethod);
+}
 
 export function scoreToGpa(score: number, method: GpaMethod): number {
   if (!Number.isFinite(score) || score < 0 || score > 100) return 0;

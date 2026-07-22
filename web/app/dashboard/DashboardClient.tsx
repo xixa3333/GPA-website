@@ -67,7 +67,10 @@ export default function DashboardClient({ displayName, signOutHref }: { displayN
     if (settingsResponse.ok) setSettings(settingsData.settings);
     setLoading(false);
   }, []);
-  useEffect(() => { void loadData(); }, [loadData]);
+  useEffect(() => {
+    const timer = window.setTimeout(() => { void loadData(); }, 0);
+    return () => window.clearTimeout(timer);
+  }, [loadData]);
 
   const computed = useMemo(() => {
     const valid = courses.filter((course) => course.score !== null);
